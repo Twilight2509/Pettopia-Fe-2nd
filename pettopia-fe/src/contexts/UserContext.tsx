@@ -43,7 +43,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       
       const userId = '2f94020b-d56e-4c40-98a9-7ecb99a8184a';
       
-      const response = await fetch(`http://localhost:3000/api/v1/customer/${userId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/customer/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

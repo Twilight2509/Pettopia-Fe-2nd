@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(**/node_modules/**)",
+      "Read(**/.next/**)",
+      "Read(**/package-lock.json)",
+      "Read(./database.json)",
+      "Read(**/public/**)",
+      "Read(**/*.tsbuildinfo)",
+      "Read(**/next-env.d.ts)"
+    ]
+  }
+}
