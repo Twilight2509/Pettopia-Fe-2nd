@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 import { getPetById, getAppointments, type MedicalRecord, type PetMedicalRecord, type PetDetailResponse } from '@/services/petcare/petService';
+import { LoadingState, EmptyState } from '@/components/ui';
 
 interface Owner {
     user_id: string;
@@ -432,10 +433,7 @@ export default function UserPetPage() {
                 <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Hồ sơ bệnh án</h2>
 
                 {loading ? (
-                    <div className="text-center py-12">
-                        <div className="inline-block w-12 h-12 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                        <p className="text-gray-600">Đang tải hồ sơ bệnh án...</p>
-                    </div>
+                    <LoadingState message="Đang tải hồ sơ bệnh án..." className="py-12!" />
                 ) : medicalRecords.length > 0 ? (
                     <div className="space-y-6">
                         {medicalRecords.map((item, index) => (
@@ -522,13 +520,16 @@ export default function UserPetPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-white rounded-2xl p-12 shadow-lg border border-teal-100 text-center">
-                        <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">Chưa có hồ sơ bệnh án</h3>
-                        <p className="text-gray-600">Hồ sơ bệnh án sẽ được hiển thị sau khi các lịch hẹn được hoàn thành.</p>
-                    </div>
+                    <EmptyState
+                        className="bg-white rounded-2xl p-12! shadow-lg border border-teal-100"
+                        icon={
+                            <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        }
+                        title="Chưa có hồ sơ bệnh án"
+                        description="Hồ sơ bệnh án sẽ được hiển thị sau khi các lịch hẹn được hoàn thành."
+                    />
                 )}
             </section>
 

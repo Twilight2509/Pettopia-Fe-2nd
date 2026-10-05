@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { getCustomerProfile } from "@/services/user/userService";
 import { Mail, MapPin, Calendar, Phone, Home, Clock, Edit3 } from 'lucide-react';
+import { Spinner } from '@/components/ui';
 
 interface User {
   id: string;
@@ -156,7 +157,7 @@ export default function UserProfilePage() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin mx-auto mb-4"></div>
+          <Spinner size="lg" color="dark" className="mb-4" />
           <div className="text-sm text-gray-600">Đang tải...</div>
         </div>
       </div>

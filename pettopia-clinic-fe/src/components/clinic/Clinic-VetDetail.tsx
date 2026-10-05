@@ -15,6 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { VetDetail, deleteClinicVet } from '@/services/partner/veterianrianService';
 import { useToast } from '@/contexts/ToastContext';
+import { Modal, Spinner } from '@/components/ui';
 
 interface Props {
 	vet: VetDetail;
@@ -248,10 +249,14 @@ export default function ClinicVetDetail({ vet, memberId }: Props) {
 			</div>
 
 			{/* Modal xác nhận xóa */}
-			{showDeleteModal && (
-				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-					<div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
-						<div className="p-6">
+			<Modal
+				open={showDeleteModal}
+				onClose={() => !isDeleting && setShowDeleteModal(false)}
+				size="md"
+				closeOnBackdrop={false}
+				showCloseButton={false}
+				className="rounded-2xl!"
+			>
 							<div className="flex items-center justify-between mb-4">
 								<h3 className="text-xl font-bold text-gray-900">Xác nhận xóa bác sĩ</h3>
 								<button
@@ -280,7 +285,7 @@ export default function ClinicVetDetail({ vet, memberId }: Props) {
 								>
 									{isDeleting ? (
 										<>
-											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+											<Spinner size="xs" color="white" />
 											Đang xóa...
 										</>
 									) : (
@@ -291,10 +296,7 @@ export default function ClinicVetDetail({ vet, memberId }: Props) {
 									)}
 								</button>
 							</div>
-						</div>
-					</div>
-				</div>
-			)}
+			</Modal>
 		</div>
 	);
 }

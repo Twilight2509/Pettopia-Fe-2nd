@@ -5,6 +5,7 @@ import Sidebar from '@/components/common/Sidebar';
 import ClinicVetDetail from '@/components/clinic/Clinic-VetDetail';
 import { getVetDetail, VetDetail } from '@/services/partner/veterianrianService';
 import { use } from 'react';
+import { Spinner } from '@/components/ui';
 
 interface Props {
 	params: Promise<{
@@ -47,7 +48,7 @@ export default function Page({ params }: Props) {
 			<div className="max-w-7xl mx-auto p-6">
 				{loading && (
 					<div className="flex items-center justify-center p-12">
-						<div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+						<Spinner size="lg" color="teal" />
 						<p className="text-gray-500 ml-4">Đang tải thông tin chi tiết...</p>
 					</div>
 				)}

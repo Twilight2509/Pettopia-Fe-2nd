@@ -21,6 +21,7 @@ import { getAppointments, getAppointmentDetail, assignVetToAppointment } from '@
 import { getCustomerById } from '@/services/customer/customerService';
 import { getClinicVets, ClinicMembersResponse, VetMember } from '@/services/partner/veterianrianService';
 import { useToast } from '@/contexts/ToastContext';
+import { Spinner, EmptyState, Modal } from '@/components/ui';
 
 interface AppointmentData {
     id?: string;
@@ -419,18 +420,16 @@ export default function AssignVetPage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     {loading ? (
                         <div className="flex items-center justify-center py-12">
-                            <Loader2 className="animate-spin h-8 w-8 text-teal-600 mr-2" />
+                            <Spinner size="md" color="teal" className="mr-2" />
                             <span className="text-gray-600">Đang tải danh sách...</span>
                         </div>
                     ) : filteredAppointments.length === 0 ? (
-                        <div className="text-center py-12">
-                            <Clock className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                            <p className="text-gray-600">
-                                {appointments.length === 0
-                                    ? 'Không có lịch hẹn đã check-in'
-                                    : 'Không tìm thấy lịch hẹn phù hợp'}
-                            </p>
-                        </div>
+                        <EmptyState
+                            icon={<Clock className="h-12 w-12 text-gray-400" />}
+                            title={appointments.length === 0
+                                ? 'Không có lịch hẹn đã check-in'
+                                : 'Không tìm thấy lịch hẹn phù hợp'}
+                        />
                     ) : (
                         <div className="divide-y divide-gray-200">
                             {filteredAppointments.map((apt) => (
@@ -496,26 +495,19 @@ export default function AssignVetPage() {
                 )}
             </div>
 
-            {showDetailModal && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-                            <h3 className="text-2xl font-bold text-gray-900">Chi tiết lịch hẹn & gán bác sĩ</h3>
-                            <button
-                                onClick={() => {
-                                    setShowDetailModal(false);
-                                    setSelectedAppointment(null);
-                                }}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-
-                        <div className="p-6">
+            <Modal
+                open={showDetailModal}
+                onClose={() => {
+                    setShowDetailModal(false);
+                    setSelectedAppointment(null);
+                }}
+                title={<span className="text-2xl">Chi tiết lịch hẹn & gán bác sĩ</span>}
+                size="3xl"
+                closeOnBackdrop={false}
+            >
                             {loadingDetail ? (
                                 <div className="flex items-center justify-center py-12">
-                                    <Loader2 className="animate-spin h-8 w-8 text-teal-600 mr-2" />
+                                    <Spinner size="md" color="teal" className="mr-2" />
                                     <span className="text-gray-600">Đang tải chi tiết...</span>
                                 </div>
                             ) : selectedAppointment ? (
@@ -637,7 +629,7 @@ export default function AssignVetPage() {
                                     >
                                         {assigningVet ? (
                                             <>
-                                                <Loader2 className="animate-spin" size={24} />
+                                                <Spinner size="sm" color="white" />
                                                 Đang gán bác sĩ...
                                             </>
                                         ) : (
@@ -649,10 +641,7 @@ export default function AssignVetPage() {
                                     </button>
                                 </div>
                             ) : null}
-                        </div>
-                    </div>
-                </div>
-            )}
+            </Modal>
         </div>
     );
 }

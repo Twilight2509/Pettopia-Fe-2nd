@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, AlertCircle, Loader } from 'lucide-react';
+import { Calendar, Clock, MapPin, AlertCircle } from 'lucide-react';
+import { Spinner, EmptyState } from '@/components/ui';
 import { getVetAppointments } from '@/services/partner/veterianrianService';
 import { VetAppointment } from '@/services/partner/veterianrianService';
 import { useToast } from '@/contexts/ToastContext';
@@ -76,7 +77,7 @@ export default function VetSchedule({ status }: VetScheduleProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader className="w-8 h-8 text-teal-600 animate-spin mr-2" />
+        <Spinner size="md" color="teal" className="mr-2" />
         <span className="text-gray-600">Đang tải lịch hẹn...</span>
       </div>
     );
@@ -111,13 +112,11 @@ export default function VetSchedule({ status }: VetScheduleProps) {
 
       {/* Empty State */}
       {appointments.length === 0 && !error && (
-        <div className="text-center py-12">
-          <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg">Không có lịch hẹn nào</p>
-          <p className="text-gray-400 text-sm mt-1">
-            Hiện không có lịch hẹn đang tiến hành nào
-          </p>
-        </div>
+        <EmptyState
+          icon={<Calendar className="w-12 h-12 text-gray-300" />}
+          title="Không có lịch hẹn nào"
+          description="Hiện không có lịch hẹn đang tiến hành nào"
+        />
       )}
 
       {/* Appointments List */}

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { communicationService } from '@/services/communication/communicationService';
+import { Spinner, LoadingState, Modal } from '@/components/ui';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -292,12 +293,7 @@ export default function ManagePostsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-10 min-h-screen">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Đang tải danh sách bài viết...</p>
-        </div>
-      </div>
+      <LoadingState fullScreen size="xl" message="Đang tải danh sách bài viết..." className="p-10" />
     );
   }
 
@@ -523,16 +519,14 @@ export default function ManagePostsPage() {
       </div>
 
       {/* Detail Modal */}
-      {showDetailModal && selectedPost && (
-        <div 
-          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4"
-          onClick={() => setShowDetailModal(false)}
+      {selectedPost && (
+        <Modal
+          open={showDetailModal}
+          onClose={() => setShowDetailModal(false)}
+          size="3xl"
+          showCloseButton={false}
+          className="rounded-2xl!"
         >
-          <div 
-            className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-6">
               <div className="flex items-start justify-between mb-6">
                 <div className="flex-1 pr-4">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedPost.title}</h2>
@@ -657,21 +651,19 @@ export default function ManagePostsPage() {
                   Xóa vĩnh viễn
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
+        </Modal>
       )}
 
       {/* Delete Modal */}
-      {deleteModalOpen && postToDelete && (
-        <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn"
-          onClick={handleDeleteCancel}
+      {postToDelete && (
+        <Modal
+          open={deleteModalOpen}
+          onClose={handleDeleteCancel}
+          size="2xl"
+          showCloseButton={false}
+          className="rounded-2xl!"
+          bodyClassName="p-0!"
         >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden animate-scaleIn"
-            onClick={(e) => e.stopPropagation()}
-          >
             <div className="bg-gradient-to-r from-red-500 to-rose-600 p-6 text-white">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -713,10 +705,7 @@ export default function ManagePostsPage() {
                 >
                   {isDeleting ? (
                     <>
-                      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
+                      <Spinner size="sm" color="white" />
                       Đang xóa...
                     </>
                   ) : (
@@ -732,25 +721,10 @@ export default function ManagePostsPage() {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
 
       <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes scaleIn {
-          from { transform: scale(0.9); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-        .animate-scaleIn {
-          animation: scaleIn 0.3s ease-out;
-        }
         .line-clamp-3 {
           display: -webkit-box;
           -webkit-line-clamp: 3;

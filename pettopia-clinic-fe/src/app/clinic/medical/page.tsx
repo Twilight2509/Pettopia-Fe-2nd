@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Calendar, Eye, Loader2, Clock, User, Phone, PawPrint, Filter, Search, X, RefreshCw, ChevronRight, FileText } from 'lucide-react';
+import { Calendar, Eye, Clock, User, Phone, PawPrint, Filter, Search, X, RefreshCw, ChevronRight, FileText } from 'lucide-react';
+import { Spinner, EmptyState } from '@/components/ui';
 import { getAppointments, type AppointmentData } from '@/services/partner/clinicService';
 import { getCustomerById } from '@/services/customer/customerService';
 import { useToast } from '@/contexts/ToastContext';
@@ -269,14 +270,14 @@ function AppointmentList({ appointments, loading, onViewDetail, filters, onFilte
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="animate-spin h-8 w-8 text-teal-600 mr-2" />
+                <Spinner size="md" color="teal" className="mr-2" />
                 <span className="text-gray-600">Đang tải danh sách...</span>
               </div>
             ) : appointments.length === 0 ? (
-              <div className="text-center py-12">
-                <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-gray-600">Không có lịch hẹn nào đã check-in</p>
-              </div>
+              <EmptyState
+                icon={<FileText className="h-12 w-12 text-gray-400" />}
+                title="Không có lịch hẹn nào đã check-in"
+              />
             ) : (
               <div className="divide-y divide-gray-200">
                 {appointments.map((apt) => (

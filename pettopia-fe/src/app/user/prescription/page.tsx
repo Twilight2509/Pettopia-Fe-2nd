@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { Spinner, LoadingState, EmptyState, Modal } from '@/components/ui';
 import { getAppointments, rateAppointment, getAppointmentDetail, getAppointmentRating, type Appointment, type AppointmentsResponse, type RatingPayload, type AppointmentDetail, type AppointmentRating } from '@/services/petcare/petService';
 
 export default function PrescriptionHistoryPage() {
@@ -264,10 +265,7 @@ export default function PrescriptionHistoryPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50 p-6">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center py-16">
-            <div className="inline-block w-10 h-10 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-4 text-gray-600">Đang tải lịch sử khám...</p>
-          </div>
+          <LoadingState message="Đang tải lịch sử khám..." />
         </div>
       </div>
     );
@@ -334,23 +332,26 @@ export default function PrescriptionHistoryPage() {
 
         {/* Appointments List */}
         {filteredAppointments.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-200">
-            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Chưa có lịch sử khám</h3>
-            <p className="text-gray-600 mb-6">
-              {statusFilter === 'all'
-                ? 'Bạn chưa có lịch hẹn nào đã hoàn thành hoặc đã hủy.'
-                : `Bạn chưa có lịch hẹn nào với trạng thái "${formatStatus(statusFilter)}".`}
-            </p>
-            <Link
-              href="/user/appointments/booking"
-              className="inline-block px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition"
-            >
-              Đặt lịch khám mới
-            </Link>
-          </div>
+          <EmptyState
+            className="bg-white rounded-2xl shadow-lg p-12! border border-gray-200"
+            icon={
+              <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            }
+            title="Chưa có lịch sử khám"
+            description={statusFilter === 'all'
+              ? 'Bạn chưa có lịch hẹn nào đã hoàn thành hoặc đã hủy.'
+              : `Bạn chưa có lịch hẹn nào với trạng thái "${formatStatus(statusFilter)}".`}
+            action={
+              <Link
+                href="/user/appointments/booking"
+                className="inline-block px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition"
+              >
+                Đặt lịch khám mới
+              </Link>
+            }
+          />
         ) : (
           <div className="space-y-4">
             {filteredAppointments.map((appointment) => (
@@ -474,9 +475,16 @@ export default function PrescriptionHistoryPage() {
       </div>
 
       {/* Rating Modal */}
-      {showRatingModal && selectedAppointmentForRating && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in duration-300">
+      {selectedAppointmentForRating && (
+        <Modal
+          open={showRatingModal}
+          onClose={closeRatingModal}
+          size="2xl"
+          closeOnBackdrop={false}
+          showCloseButton={false}
+          className="rounded-3xl!"
+          bodyClassName="p-8!"
+        >
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h3 className="text-2xl font-bold text-gray-800">Đánh giá dịch vụ</h3>
@@ -568,7 +576,7 @@ export default function PrescriptionHistoryPage() {
                 >
                   {ratingSubmitting ? (
                     <div className="flex items-center justify-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <Spinner size="xs" color="white" />
                       <span>Đang gửi...</span>
                     </div>
                   ) : (
@@ -577,8 +585,7 @@ export default function PrescriptionHistoryPage() {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

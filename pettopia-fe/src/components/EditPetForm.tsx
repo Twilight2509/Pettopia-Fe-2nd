@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { getPetById, updatePet, UpdatePetPayload } from '@/services/petcare/petService';
+import { LoadingState } from '@/components/ui';
 
 /**
  * Component: EditPetForm
@@ -132,12 +133,7 @@ export default function EditPetForm() {
   // LOADING
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-gray-600">Đang tải dữ liệu thú cưng...</p>
-        </div>
-      </div>
+      <LoadingState message="Đang tải dữ liệu thú cưng..." className="h-screen py-0! gap-3!" />
     );
   }
 

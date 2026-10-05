@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Calendar, Filter, ChevronLeft, ChevronRight, X, CheckCircle, XCircle, Clock, Loader2, Sun, Sunset, Moon, RefreshCw } from 'lucide-react';
+import { Calendar, Filter, ChevronLeft, ChevronRight, X, CheckCircle, XCircle, Clock, Sun, Sunset, Moon, RefreshCw } from 'lucide-react';
+import { Spinner } from '@/components/ui';
 import NotificationBell from '@/components/common/NotificationBell';
 import { useToast } from '@/contexts/ToastContext';
 import { getAppointments, updateAppointmentStatus, getAppointmentDetail, type AppointmentData } from '@/services/partner/clinicService';
@@ -778,7 +779,7 @@ export default function AppointmentsPage() {
                         <div className="p-6">
                             {loadingDetail ? (
                                 <div className="flex items-center justify-center py-12">
-                                    <Loader2 className="animate-spin h-8 w-8 text-teal-600 mr-2" />
+                                    <Spinner size="md" color="teal" className="mr-2" />
                                     <span className="text-gray-600">Đang tải chi tiết...</span>
                                 </div>
                             ) : (
@@ -928,7 +929,7 @@ export default function AppointmentsPage() {
                                                 >
                                                     {updatingStatus ? (
                                                         <>
-                                                            <Loader2 className="animate-spin h-5 w-5" />
+                                                            <Spinner size="sm" color="white" />
                                                             <span>Đang xử lý...</span>
                                                         </>
                                                     ) : (
@@ -961,7 +962,7 @@ export default function AppointmentsPage() {
                                                 >
                                                     {updatingStatus ? (
                                                         <>
-                                                            <Loader2 className="animate-spin h-5 w-5" />
+                                                            <Spinner size="sm" color="white" />
                                                             <span>Đang xử lý...</span>
                                                         </>
                                                     ) : (
@@ -1002,7 +1003,7 @@ export default function AppointmentsPage() {
                         <div className="p-6">
                             {loadingDetail ? (
                                 <div className="flex items-center justify-center py-12">
-                                    <Loader2 className="animate-spin h-8 w-8 text-teal-600 mr-2" />
+                                    <Spinner size="md" color="teal" className="mr-2" />
                                     <span className="text-gray-600">Đang tải chi tiết...</span>
                                 </div>
                             ) : (
@@ -1152,7 +1153,7 @@ export default function AppointmentsPage() {
                                                 >
                                                     {updatingStatus ? (
                                                         <>
-                                                            <Loader2 className="animate-spin h-5 w-5" />
+                                                            <Spinner size="sm" color="white" />
                                                             <span>Đang xử lý...</span>
                                                         </>
                                                     ) : (
@@ -1185,7 +1186,7 @@ export default function AppointmentsPage() {
                                                 >
                                                     {updatingStatus ? (
                                                         <>
-                                                            <Loader2 className="animate-spin h-5 w-5" />
+                                                            <Spinner size="sm" color="white" />
                                                             <span>Đang xử lý...</span>
                                                         </>
                                                     ) : (
@@ -1289,7 +1290,7 @@ export default function AppointmentsPage() {
                                 <tr>
                                     <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                                         <div className="flex justify-center items-center">
-                                            <Loader2 className="animate-spin h-6 w-6 text-teal-600 mr-2" />
+                                            <Spinner size="sm" color="teal" className="mr-2" />
                                             <span>Đang tải dữ liệu...</span>
                                         </div>
                                     </td>
@@ -1353,7 +1354,7 @@ export default function AppointmentsPage() {
                                                                 title="Xác nhận lịch hẹn"
                                                             >
                                                                 {updatingId === id ? (
-                                                                    <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+                                                                    <Spinner size="sm" color="gray" />
                                                                 ) : (
                                                                     <CheckCircle className="h-5 w-5 text-green-600 hover:text-green-700 transition" />
                                                                 )}

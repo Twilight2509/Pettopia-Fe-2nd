@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { Spinner, EmptyState } from '@/components/ui';
 
 
 
@@ -340,7 +341,7 @@ export default function QRScanPage() {
                 >
                   {(isScanning || loading) ? (
                     <span className="flex items-center justify-center space-x-2">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <Spinner size="sm" color="white" />
                       <span>{loading ? 'Đang tải thông tin...' : 'Đang quét...'}</span>
                     </span>
                   ) : (
@@ -370,14 +371,17 @@ export default function QRScanPage() {
             <h3 className="text-2xl font-bold text-gray-900 mb-6">Thông Tin Thú Cưng</h3>
             
             {!petInfo ? (
-              <div className="flex flex-col items-center justify-center h-96 text-gray-400">
-                <svg className="w-24 h-24 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <p className="text-lg font-medium">Chưa có thông tin</p>
-                <p className="text-sm text-center px-4">Vui lòng quét mã QR để xem thông tin thú cưng</p>
-              </div>
+              <EmptyState
+                className="h-96 px-4"
+                title="Chưa có thông tin"
+                description="Vui lòng quét mã QR để xem thông tin thú cưng"
+                icon={
+                  <svg className="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                }
+              />
             ) : (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}

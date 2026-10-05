@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Heart, ClipboardList, Pill, FileText, Calendar, Loader2, User, Phone, Mail, MapPin } from 'lucide-react';
+import { ArrowLeft, Heart, ClipboardList, Pill, FileText, Calendar, User, Phone, Mail, MapPin } from 'lucide-react';
+import { Spinner, EmptyState } from '@/components/ui';
 import { getAppointmentDetail, getMedicalRecord } from '@/services/partner/clinicService';
 import { useToast } from '@/contexts/ToastContext';
 
@@ -119,7 +120,7 @@ export default function MedicalRecordDetailPage() {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="animate-spin text-blue-600" size={32} />
+          <Spinner size="md" color="blue" />
           <p className="text-gray-600">Đang tải chi tiết...</p>
         </div>
       </div>
@@ -230,11 +231,11 @@ export default function MedicalRecordDetailPage() {
           </div>
 
           {!hasRecord ? (
-            <div className="p-12 text-center">
-              <FileText className="mx-auto h-16 w-16 text-gray-300 mb-4" />
-              <p className="text-gray-500 text-lg mb-2">Chưa có hồ sơ bệnh án</p>
-              <p className="text-gray-400 text-sm">Hồ sơ bệnh án sẽ được tạo bởi bác sĩ thú y</p>
-            </div>
+            <EmptyState
+              icon={<FileText className="h-16 w-16 text-gray-300" />}
+              title="Chưa có hồ sơ bệnh án"
+              description="Hồ sơ bệnh án sẽ được tạo bởi bác sĩ thú y"
+            />
           ) : (
             <div className="p-6 space-y-6">
               {/* Triệu Chứng */}

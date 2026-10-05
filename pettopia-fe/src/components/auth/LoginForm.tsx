@@ -9,6 +9,7 @@ import { parseJwt } from '@/utils/jwt';
 import { PaymentService } from '@/services/payment/PaymentService';
 import Image from 'next/image';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { Spinner } from '@/components/ui';
 
 type FormData = {
   username: string;
@@ -145,7 +146,7 @@ export default function LoginForm() {
             }}
           ></div>
           <p className="text-gray-500 text-sm flex items-center justify-center gap-2">
-            <span className="inline-block w-4 h-4 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></span>
+            <Spinner size="xs" />
             Đang chuyển hướng...
           </p>
         </div>

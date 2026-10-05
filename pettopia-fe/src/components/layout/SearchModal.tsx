@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, JSX } from 'react';
 import { useRouter } from 'next/navigation';
+import { Modal, EmptyState } from '@/components/ui';
 
 export interface MenuItem {
   id: string;
@@ -44,9 +45,6 @@ export default function SearchModal({
           // Open modal (handled by parent)
         }
       }
-      if (e.key === 'Escape') {
-        onClose();
-      }
     };
 
     if (isOpen) {
@@ -79,11 +77,16 @@ export default function SearchModal({
     router.push(path);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[600px] overflow-hidden">
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      size="2xl"
+      closeOnBackdrop={false}
+      showCloseButton={false}
+      className="max-h-[600px]! overflow-hidden!"
+      bodyClassName="p-0!"
+    >
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-400">
@@ -137,13 +140,16 @@ export default function SearchModal({
               </div>
             ))
           ) : (
-            <div className="text-center py-12">
-              <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-gray-500 text-sm">Không tìm thấy kết quả phù hợp</p>
-              <p className="text-gray-400 text-xs mt-1">Thử tìm kiếm với từ khóa khác</p>
-            </div>
+            <EmptyState
+              className="py-12!"
+              icon={
+                <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              }
+              title="Không tìm thấy kết quả phù hợp"
+              description="Thử tìm kiếm với từ khóa khác"
+            />
           )}
         </div>
 
@@ -167,7 +173,6 @@ export default function SearchModal({
             </div>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

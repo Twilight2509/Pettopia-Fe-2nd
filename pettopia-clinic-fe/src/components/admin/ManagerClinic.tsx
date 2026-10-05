@@ -19,6 +19,7 @@ import {
   type ClinicItem,
 } from '@/services/partner/clinicService';
 import ToastItem, { type Toast as ToastModel } from '@/components/common/Toast';
+import { Modal, Pagination } from '@/components/ui';
 
 interface ClinicView {
   id: string;
@@ -250,40 +251,25 @@ export default function ManagerClinic() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            Trước
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-            <button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              className={`px-4 py-2 rounded-lg transition-colors ${currentPage === page
-                ? 'bg-teal-500 text-white'
-                : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
-                }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button
-            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            Sau
-          </button>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          maxButtons={totalPages}
+          className="rounded-xl shadow-md border border-gray-100"
+        />
       )}
 
       {/* Confirm Modal */}
       {showConfirmModal && selectedClinic && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
+        <Modal
+          open
+          onClose={cancelStatusChange}
+          size="md"
+          closeOnBackdrop={false}
+          showCloseButton={false}
+          className="rounded-2xl!"
+        >
             <div className="flex items-center justify-center mb-4">
               <div className={`w-16 h-16 rounded-full flex items-center justify-center ${actionType === 'activate' ? 'bg-green-100' : 'bg-red-100'
                 }`}>
@@ -321,8 +307,7 @@ export default function ManagerClinic() {
                 Xác nhận
               </button>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
       {/* Toast container */}
       <div className="fixed top-4 right-4 z-50 flex flex-col gap-3">

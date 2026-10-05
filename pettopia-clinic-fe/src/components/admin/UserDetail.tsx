@@ -15,6 +15,7 @@ import {
 
 import { getCustomerById, updateCustomerStatus, addCustomerRole } from '@/services/customer/customerService';
 import ToastItem, { type Toast as ToastModel } from '@/components/common/Toast';
+import { Spinner } from '@/components/ui';
 
 interface UserDetailProps {
   id: string;
@@ -155,7 +156,7 @@ export default function UserDetail({ id }: UserDetailProps) {
       <div className="max-w-5xl mx-auto p-6">
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <Spinner size="xl" color="teal" className="mb-4" />
             <p className="text-gray-600">Đang tải thông tin...</p>
           </div>
         </div>

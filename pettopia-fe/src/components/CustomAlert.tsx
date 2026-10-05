@@ -1,6 +1,7 @@
 // File: components/ui/CustomAlert.tsx
 'use client'
 import React from 'react';
+import { Modal } from '@/components/ui';
 
 interface CustomAlertProps {
   show: boolean;
@@ -75,8 +76,15 @@ export default function CustomAlert({
   const style = styles[type];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all animate-scaleIn">
+    <Modal
+      open={show}
+      onClose={onClose}
+      size="md"
+      closeOnBackdrop={false}
+      showCloseButton={false}
+      className="rounded-2xl!"
+      bodyClassName="p-0!"
+    >
         {/* Icon Header */}
         <div className={`${style.bg} ${style.border} border-b p-6 rounded-t-2xl`}>
           <div className="flex items-center justify-center">
@@ -105,31 +113,7 @@ export default function CustomAlert({
             {confirmText}
           </button>
         </div>
-      </div>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes scaleIn {
-          from { 
-            opacity: 0;
-            transform: scale(0.9);
-          }
-          to { 
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-        .animate-scaleIn {
-          animation: scaleIn 0.3s ease-out;
-        }
-      `}</style>
-    </div>
+    </Modal>
   );
 }
 

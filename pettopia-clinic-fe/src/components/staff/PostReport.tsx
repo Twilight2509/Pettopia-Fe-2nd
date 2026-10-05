@@ -2,9 +2,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import {
     AlertTriangle, Eye, EyeOff, MessageSquare, Heart, Flag, User,
-    Calendar, Image, Search, X
+    Calendar, Image, Search
 } from 'lucide-react';
 import { getReportedPosts, toggleHidePost } from '@/services/customer/post';
+import { Modal } from '@/components/ui';
 
 interface Author {
     user_id: string;
@@ -362,16 +363,46 @@ export default function ReportedPostsManagement() {
 
             {/* Modal Chi tiết bài viết */}
             {isDetailModalOpen && selectedPost && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-                            <h2 className="text-xl font-bold text-gray-900">Chi tiết bài viết</h2>
-                            <button onClick={closeDetailModal} className="text-gray-400 hover:text-gray-600">
-                                <X className="w-6 h-6" />
+                <Modal
+                    open
+                    onClose={closeDetailModal}
+                    title="Chi tiết bài viết"
+                    size="4xl"
+                    closeOnBackdrop={false}
+                    className="rounded-2xl!"
+                    bodyClassName="space-y-6"
+                    footer={
+                        <>
+                            <button
+                                onClick={closeDetailModal}
+                                className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition"
+                            >
+                                Đóng
                             </button>
-                        </div>
-
-                        <div className="p-6 space-y-6">
+                            {selectedPost.isHidden ? (
+                                <button
+                                    onClick={() => {
+                                        closeDetailModal();
+                                        openActionModal(selectedPost, 'unhide');
+                                    }}
+                                    className="px-6 py-2.5 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                                >
+                                    Bỏ ẩn bài viết
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => {
+                                        closeDetailModal();
+                                        openActionModal(selectedPost, 'hide');
+                                    }}
+                                    className="px-6 py-2.5 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition"
+                                >
+                                    Ẩn bài viết
+                                </button>
+                            )}
+                        </>
+                    }
+                >
                             <div className="bg-gray-50 rounded-xl p-5">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{selectedPost.title}</h3>
                                 <p className="text-gray-700 mb-4 whitespace-pre-wrap">{selectedPost.content}</p>
@@ -446,46 +477,40 @@ export default function ReportedPostsManagement() {
                                     ))}
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-                            <button
-                                onClick={closeDetailModal}
-                                className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition"
-                            >
-                                Đóng
-                            </button>
-                            {selectedPost.isHidden ? (
-                                <button
-                                    onClick={() => {
-                                        closeDetailModal();
-                                        openActionModal(selectedPost, 'unhide');
-                                    }}
-                                    className="px-6 py-2.5 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
-                                >
-                                    Bỏ ẩn bài viết
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={() => {
-                                        closeDetailModal();
-                                        openActionModal(selectedPost, 'hide');
-                                    }}
-                                    className="px-6 py-2.5 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition"
-                                >
-                                    Ẩn bài viết
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                </Modal>
             )}
 
             {/* Modal Xác nhận hành động */}
             {isActionModalOpen && selectedPost && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl max-w-md w-full">
-                        <div className="p-6">
+                <Modal
+                    open
+                    onClose={() => !loading && closeActionModal()}
+                    size="md"
+                    closeOnBackdrop={false}
+                    showCloseButton={false}
+                    className="rounded-2xl!"
+                    footer={
+                        <>
+                            <button
+                                onClick={closeActionModal}
+                                disabled={loading}
+                                className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                onClick={handleAction}
+                                disabled={loading}
+                                className={`px-6 py-2.5 rounded-lg font-medium text-white transition disabled:opacity-50 disabled:cursor-not-allowed ${actionType === 'hide'
+                                        ? 'bg-red-600 hover:bg-red-700'
+                                        : 'bg-green-600 hover:bg-green-700'
+                                    }`}
+                            >
+                                {loading ? 'Đang xử lý...' : (actionType === 'hide' ? 'Xác nhận ẩn' : 'Xác nhận bỏ ẩn')}
+                            </button>
+                        </>
+                    }
+                >
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${actionType === 'hide' ? 'bg-red-100' : 'bg-green-100'
                                 }`}>
                                 {actionType === 'hide' ? (
@@ -513,29 +538,7 @@ export default function ReportedPostsManagement() {
                                 <p className="text-sm font-medium text-gray-900 mb-1">Bài viết:</p>
                                 <p className="text-sm text-gray-700 line-clamp-2">{selectedPost.title}</p>
                             </div>
-                        </div>
-
-                        <div className="border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-                            <button
-                                onClick={closeActionModal}
-                                disabled={loading}
-                                className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Hủy
-                            </button>
-                            <button
-                                onClick={handleAction}
-                                disabled={loading}
-                                className={`px-6 py-2.5 rounded-lg font-medium text-white transition disabled:opacity-50 disabled:cursor-not-allowed ${actionType === 'hide'
-                                        ? 'bg-red-600 hover:bg-red-700'
-                                        : 'bg-green-600 hover:bg-green-700'
-                                    }`}
-                            >
-                                {loading ? 'Đang xử lý...' : (actionType === 'hide' ? 'Xác nhận ẩn' : 'Xác nhận bỏ ẩn')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                </Modal>
             )}
         </div>
     );

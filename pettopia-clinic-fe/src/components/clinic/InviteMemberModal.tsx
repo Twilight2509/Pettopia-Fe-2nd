@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { useToast } from '@/contexts/ToastContext';
 import {
-  XMarkIcon,
   EnvelopeIcon,
 } from '@heroicons/react/24/outline';
+import { Modal } from '@/components/ui';
 
 interface InviteMemberModalProps {
   onSubmit: (email: string, role: string) => Promise<void>;
@@ -36,18 +36,8 @@ export default function InviteMemberModal({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-        >
-          <XMarkIcon className="w-6 h-6" />
-        </button>
-
+    <Modal open={isOpen} onClose={onClose} size="md" closeOnBackdrop={false} className="rounded-2xl!">
         <div className="text-center mb-6">
           <div className="w-14 h-14 bg-gradient-to-br from-teal-600 to-cyan-600 rounded-xl flex items-center justify-center mx-auto mb-4">
             <EnvelopeIcon className="w-7 h-7 text-white" />
@@ -119,7 +109,6 @@ export default function InviteMemberModal({
             </button>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

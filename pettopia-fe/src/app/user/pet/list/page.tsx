@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { deletePet, getPetsByOwner, type MedicalRecord, type PetDetailResponse } from '@/services/petcare/petService';
+import { Spinner, LoadingState, Modal } from '@/components/ui';
 
 interface Pet {
     id: string | number;
@@ -169,12 +170,7 @@ export default function PetListPage() {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center p-10">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600">Đang tải danh sách thú cưng...</p>
-                </div>
-            </div>
+            <LoadingState size="xl" message="Đang tải danh sách thú cưng..." className="p-10!" />
         );
     }
 
@@ -409,9 +405,15 @@ export default function PetListPage() {
             </div>
 
            {/* Delete Modal */}
-            {deleteModalOpen && petToDelete && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={handleDeleteCancel}>
-                    <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            {petToDelete && (
+                <Modal
+                    open={deleteModalOpen}
+                    onClose={handleDeleteCancel}
+                    size="2xl"
+                    showCloseButton={false}
+                    className="rounded-lg!"
+                    bodyClassName="p-0!"
+                >
                         {(() => {
                             const p = petToDelete;
                             return (
@@ -541,10 +543,7 @@ export default function PetListPage() {
                                         >
                                             {isDeleting ? (
                                                 <>
-                                                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                                    </svg>
+                                                    <Spinner size="xs" color="white" />
                                                     Đang xóa...
                                                 </>
                                             ) : (
@@ -555,16 +554,8 @@ export default function PetListPage() {
                                 </>
                             );
                         })()}
-                    </div>
-                </div>
+                </Modal>
             )}
-
-            <style jsx>{`
-                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-                @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-                .animate-fadeIn { animation: fadeIn 0.2s ease-out; }
-                .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
-            `}</style>
         </>
     );
 }

@@ -13,7 +13,6 @@ import {
   Plus, 
   X, 
   Save, 
-  Loader2,
   Edit,
   Eye,
   Search,
@@ -24,6 +23,7 @@ import {
   type VetAppointment
 } from '@/services/partner/veterianrianService';
 import { useToast } from '@/contexts/ToastContext';
+import { Spinner } from '@/components/ui';
 
 export default function VetPatientsPage() {
   const router = useRouter();
@@ -81,7 +81,7 @@ export default function VetPatientsPage() {
     return (
       <div >
        
-          <Loader2 className="animate-spin text-teal-600" size={32} />
+          <Spinner size="md" color="teal" />
          
       </div>
     );

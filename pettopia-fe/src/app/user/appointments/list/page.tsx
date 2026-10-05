@@ -5,6 +5,7 @@ import type { Appointment, AppointmentsResponse } from '@/services/petcare/petSe
 import { getAppointments } from '@/services/petcare/petService';
 import { useToast } from '@/contexts/ToastContext';
 import Link from 'next/link';
+import { LoadingState, EmptyState } from '@/components/ui';
 
 // Icons
 const ChevronLeftIcon = ({ className }: { className?: string }) => (
@@ -298,14 +299,12 @@ const ViewAppointmentsPage = () => {
               )}
 
               {loading ? (
-                <div className="text-center py-16">
-                  <div className="inline-block w-10 h-10 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
-                </div>
+                <LoadingState />
               ) : filteredAppointments.length === 0 ? (
-                <div className="text-center py-16 text-gray-500">
-                  <CalendarIcon className="w-20 h-20 mx-auto mb-4 text-gray-300" />
-                  <p>Không có lịch hẹn nào {selectedDate && 'trong ngày này'}</p>
-                </div>
+                <EmptyState
+                  title={`Không có lịch hẹn nào ${selectedDate ? 'trong ngày này' : ''}`.trim()}
+                  icon={<CalendarIcon className="w-20 h-20 text-gray-300" />}
+                />
               ) : (
                 <div className="space-y-4 max-h-screen overflow-y-auto">
                   {filteredAppointments.map(apt => (

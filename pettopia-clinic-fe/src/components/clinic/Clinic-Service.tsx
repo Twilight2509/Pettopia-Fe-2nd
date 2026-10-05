@@ -1,7 +1,8 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react';
 import { getClinicServices, createClinicService, updateClinicService, deleteClinicService } from '@/services/partner/clinicService';
-import { Edit, Trash2, Plus, Search, X, AlertCircle, Loader2 } from 'lucide-react'; 
+import { Edit, Trash2, Plus, Search, X, AlertCircle } from 'lucide-react';
+import { Spinner, EmptyState, Modal } from '@/components/ui'; 
 interface Service {
   _id?: string;
   id?: string;
@@ -282,24 +283,24 @@ export default function ClinicService() {
                   <tr>
                     <td className="px-6 py-8 text-center text-gray-500" colSpan={5}>
                       <div className="flex justify-center items-center">
-                        <svg className="animate-spin h-6 w-6 text-teal-600" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
+                        <Spinner size="sm" color="teal" />
                         <span className="ml-2">Đang tải...</span>
                       </div>
                     </td>
                   </tr>
                 ) : services.length === 0 ? (
                   <tr>
-                    <td className="px-6 py-8 text-center text-gray-500" colSpan={5}>
-                      <div className="flex flex-col items-center">
-                        <svg className="h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <p className="font-medium">Chưa có dịch vụ nào</p>
-                        <p className="text-sm text-gray-400 mt-1">Thêm dịch vụ đầu tiên của bạn</p>
-                      </div>
+                    <td className="px-6" colSpan={5}>
+                      <EmptyState
+                        className="py-8!"
+                        icon={
+                          <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        }
+                        title="Chưa có dịch vụ nào"
+                        description="Thêm dịch vụ đầu tiên của bạn"
+                      />
                     </td>
                   </tr>
                 ) : (
@@ -338,7 +339,7 @@ export default function ClinicService() {
                               title="Chỉnh sửa dịch vụ"
                             >
                               {loading && editingId === (s.id || s._id) ? (
-                                <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+                                <Spinner size="sm" color="gray" />
                               ) : (
                                 <Edit className="h-5 w-5 text-teal-600 hover:text-teal-900 transition" />
                               )}
@@ -417,24 +418,38 @@ export default function ClinicService() {
       </div>
 
       {/* Edit/Create Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white z-10">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {editingId ? 'Chỉnh sửa dịch vụ' : 'Thêm dịch vụ mới'}
-              </h2>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 transition"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="p-6">
+      <Modal
+        open={isModalOpen}
+        onClose={closeModal}
+        title={editingId ? 'Chỉnh sửa dịch vụ' : 'Thêm dịch vụ mới'}
+        size="2xl"
+        closeOnBackdrop={false}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={closeModal}
+              className="bg-white text-gray-700 border border-gray-300 rounded-lg px-6 py-2.5 font-medium hover:bg-gray-50 transition"
+              disabled={loading}
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="bg-teal-600 text-white rounded-lg px-6 py-2.5 font-medium hover:bg-teal-700 focus:ring-4 focus:ring-teal-200 disabled:opacity-60 disabled:cursor-not-allowed transition"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="flex items-center">
+                  <Spinner size="xs" color="white" className="-ml-1 mr-2" />
+                  Đang lưu...
+                </span>
+              ) : editingId ? 'Cập nhật' : 'Thêm mới'}
+            </button>
+          </>
+        }
+      >
               {error && (
                 <div className="mb-6 rounded-lg bg-red-50 border border-red-200 p-4">
                   <div className="flex items-start">
@@ -530,42 +545,17 @@ export default function ClinicService() {
                   </label>
                 </div>
               </div>
-            </div>
-
-            <div className="border-t border-gray-200 px-6 py-4 flex gap-3 justify-end bg-gray-50 sticky bottom-0">
-              <button
-                type="button"
-                onClick={closeModal}
-                className="bg-white text-gray-700 border border-gray-300 rounded-lg px-6 py-2.5 font-medium hover:bg-gray-50 transition"
-                disabled={loading}
-              >
-                Hủy
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                className="bg-teal-600 text-white rounded-lg px-6 py-2.5 font-medium hover:bg-teal-700 focus:ring-4 focus:ring-teal-200 disabled:opacity-60 disabled:cursor-not-allowed transition"
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Đang lưu...
-                  </span>
-                ) : editingId ? 'Cập nhật' : 'Thêm mới'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+        <Modal
+          open
+          onClose={() => !loading && setDeleteConfirm(null)}
+          size="md"
+          closeOnBackdrop={false}
+          showCloseButton={false}
+        >
             <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
               <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -594,7 +584,7 @@ export default function ClinicService() {
               >
                 {loading && deletingId === deleteConfirm ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Spinner size="xs" color="white" />
                     <span>Đang xóa...</span>
                   </>
                 ) : (
@@ -602,8 +592,7 @@ export default function ClinicService() {
                 )}
               </button>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

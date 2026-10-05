@@ -23,6 +23,8 @@ File map: see `docs/PROJECT_STRUCTURE.md` — read it only when you need to loca
 - API calls live in `src/services/<domain>/*Service.ts` (axios instance + Bearer token from `localStorage.authToken`). New code should call services, not axios/fetch directly (some legacy pages still do).
 - Large files (>600 lines, grep before reading): `clinic-fe/app/clinic/appointment/page.tsx` (1.7k), `fe/app/user/pet/new`, `fe/app/user/appointments/booking`, `fe/app/user/edit-profile`, `clinic-fe/components/common/UpdateProfile.tsx`, `fe/services/petcare/petService.ts`, `clinic-fe/services/partner/veterianrianService.ts`.
 - Route guard: `src/proxy.ts` (Next 16 replacement of middleware), role read from cookie `userRole`.
+- Shared UI: `import { Spinner, LoadingState, EmptyState, Modal } from '@/components/ui'` (+ `Pagination` in clinic-fe); `cn()` in `@/utils/cn`. Use these instead of hand-written spinners/overlays. Global `.animate-fadeIn/scaleIn/slideUp` in `globals.css` (no styled-jsx keyframes).
+- clinic-fe role layouts (`admin|clinic|staff|user|vet/layout.tsx`) all wrap `components/layout/DashboardLayout.tsx`.
 - Toasts: `src/contexts/ToastContext.tsx`. Pages are `'use client'` components under `src/app/**/page.tsx`.
 - UI text is Vietnamese; keep files UTF-8 (PowerShell 5.1 `Get-Content` shows mojibake — use the read tool).
 - Two apps duplicate some files (`proxy.ts`, `utils/jwt.ts`, `utils/cookieHelper.ts`, `ToastContext`, `Toast`, `NotificationBell`, auth forms). Change both only if the user asks.

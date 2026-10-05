@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { communicationService } from '@/services/communication/communicationService';
 import { parseJwt } from '@/utils/jwt';
+import { Spinner } from '@/components/ui';
 
 interface Tag {
   id: string;
@@ -174,7 +175,7 @@ export default function CreatePostPage() {
           <div className="bg-white rounded-xl shadow-2xl p-8 flex flex-col items-center gap-4 min-w-[300px] max-w-[400px]">
             <div className="relative w-16 h-16">
               <div className="absolute inset-0 border-4 border-teal-200 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-teal-600 rounded-full border-t-transparent animate-spin"></div>
+              <Spinner size="xl" className="absolute inset-0" />
             </div>
             <p className="text-lg font-semibold text-gray-700">Đang đăng bài...</p>
             <p className="text-sm text-gray-500 text-center">Vui lòng đợi trong giây lát</p>

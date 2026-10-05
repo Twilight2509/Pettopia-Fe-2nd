@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { communicationService } from '@/services/communication/communicationService';
 import { parseJwt } from '@/utils/jwt';
+import { Spinner } from '@/components/ui';
 
 interface Category {
   id: string;
@@ -179,7 +180,7 @@ export default function EditPostPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-cyan-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4" />
+          <Spinner size="lg" className="mb-4" />
           <p className="text-teal-700 font-medium">Đang tải dữ liệu bài viết...</p>
         </div>
       </div>

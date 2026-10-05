@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { createPet, getPetsByOwner } from '@/services/petcare/petService';
 import { getCustomerProfile, getVipStatus } from '@/services/user/userService';
 import { toast } from 'react-hot-toast';
+import { Spinner } from '@/components/ui';
 
 export default function RegisterPetPage() {
     const router = useRouter();
@@ -428,7 +429,7 @@ export default function RegisterPetPage() {
                     <div className="bg-white rounded-xl shadow-2xl p-8 flex flex-col items-center gap-4 min-w-[300px] max-w-[400px]">
                         <div className="relative w-16 h-16">
                             <div className="absolute inset-0 border-4 border-teal-200 rounded-full"></div>
-                            <div className="absolute inset-0 border-4 border-teal-600 rounded-full border-t-transparent animate-spin"></div>
+                            <Spinner size="xl" className="absolute inset-0" />
                         </div>
                         <p className="text-lg font-semibold text-gray-700">Đang tạo thú cưng...</p>
                         <p className="text-sm text-gray-500 text-center">Vui lòng đợi trong giây lát</p>
@@ -962,10 +963,7 @@ export default function RegisterPetPage() {
                                         }`}
                                 >
                                     {isSubmitting && (
-                                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
+                                        <Spinner size="sm" color="white" />
                                     )}
                                     {isSubmitting ? 'Đang xử lý...' : 'Đăng ký thú cưng'}
                                 </button>

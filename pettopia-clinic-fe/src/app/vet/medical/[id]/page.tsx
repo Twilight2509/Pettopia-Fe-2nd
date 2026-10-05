@@ -9,7 +9,6 @@ import {
   Pill,
   FileText,
   Calendar,
-  Loader2,
   Save,
   Plus,
   X,
@@ -28,6 +27,7 @@ import {
   type VetAppointmentDetail,
 } from '@/services/partner/veterianrianService';
 import { useToast } from '@/contexts/ToastContext';
+import { Spinner } from '@/components/ui';
 
 // Using VetAppointmentDetail type from service
 type AppointmentDetail = VetAppointmentDetail;
@@ -333,7 +333,7 @@ export default function VetMedicalRecordDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-4 md:p-8 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="animate-spin text-teal-600" size={32} />
+          <Spinner size="md" color="teal" />
           <p className="text-gray-600">Đang tải chi tiết...</p>
         </div>
       </div>
@@ -447,7 +447,7 @@ export default function VetMedicalRecordDetailPage() {
                 >
                   {completing ? (
                     <>
-                      <Loader2 className="animate-spin" size={16} />
+                      <Spinner size="xs" color="white" />
                       Đang hoàn thành...
                     </>
                   ) : (
@@ -737,7 +737,7 @@ export default function VetMedicalRecordDetailPage() {
                   >
                     {saving ? (
                       <>
-                        <Loader2 className="animate-spin" size={18} />
+                        <Spinner size="xs" color="white" />
                         Đang lưu...
                       </>
                     ) : (

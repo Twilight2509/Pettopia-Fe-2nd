@@ -15,6 +15,7 @@ import {
   type PetDetailResponse,
   type ClinicRatingStats,
 } from '@/services/petcare/petService';
+import { Spinner, LoadingState } from '@/components/ui';
 
 type Pet = PetDetailResponse;
 type PetServiceMap = Record<string, string[]>;
@@ -354,10 +355,7 @@ export default function AppointmentBooking() {
             <div>
               <h2 className="text-3xl font-bold mb-8">Chọn phòng khám</h2>
               {loading ? (
-                <div className="text-center py-16">
-                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-teal-600"></div>
-                  <p className="mt-4 text-gray-600">Đang tải phòng khám...</p>
-                </div>
+                <LoadingState message="Đang tải phòng khám..." />
               ) : error ? (
                 <div className="text-center py-16 text-red-600">{error}</div>
               ) : (
@@ -714,7 +712,7 @@ export default function AppointmentBooking() {
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center gap-3">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <Spinner size="sm" color="white" />
                   <span>Đang xử lý...</span>
                 </div>
               ) : (
@@ -793,10 +791,7 @@ export default function AppointmentBooking() {
               <div>
                 <h4 className="text-xl font-bold mb-4">Thống kê đánh giá</h4>
                 {ratingsLoading ? (
-                  <div className="text-center py-8">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-4 border-teal-600"></div>
-                    <p className="mt-2 text-gray-600">Đang tải thống kê...</p>
-                  </div>
+                  <LoadingState size="md" message="Đang tải thống kê..." className="py-8! gap-2!" />
                 ) : !clinicRatingStats ? (
                   <p className="text-gray-500 italic">Chưa có đánh giá nào</p>
                 ) : (

@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { getCustomerProfile, updateCustomerProfile } from "@/services/user/userService";
-import { Mail, MapPin, Calendar, Phone, Home, Clock, Edit3, ArrowLeft, Loader } from 'lucide-react';
+import { Mail, MapPin, Calendar, Phone, Home, Clock, Edit3, ArrowLeft } from 'lucide-react';
+import { Spinner } from '@/components/ui';
 import axios from "axios";
 
 interface User {
@@ -508,7 +509,7 @@ export default function EditProfilePage() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin mx-auto mb-4"></div>
+          <Spinner size="lg" color="dark" className="mb-4" />
           <div className="text-sm text-gray-600">Đang tải...</div>
         </div>
       </div>
@@ -783,7 +784,7 @@ export default function EditProfilePage() {
               disabled={submitting}
               className="flex-1 px-6 py-2.5 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {submitting && <Loader className="w-4 h-4 animate-spin" />}
+              {submitting && <Spinner size="xs" color="white" />}
               {submitting ? 'Đang cập nhật...' : 'Cập nhật hồ sơ'}
             </button>
           </div>

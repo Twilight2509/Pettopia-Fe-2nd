@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react';
-import { Sun, Sunset, Moon, Clock, Edit, Trash2, Loader2 } from 'lucide-react';
+import { Sun, Sunset, Moon, Clock, Edit, Trash2 } from 'lucide-react';
+import { Spinner, Modal } from '@/components/ui';
 import {
   fetchClinicShiftPage as getClinicShifts,
   createClinicShift,
@@ -340,7 +341,7 @@ export default function ClinicShift() {
                             title="Chỉnh sửa ca làm việc"
                           >
                             {editingIdAction === s.id ? (
-                              <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+                              <Spinner size="sm" color="gray" />
                             ) : (
                               <Edit className="h-5 w-5 text-teal-600 hover:text-teal-800 transition" />
                             )}
@@ -352,7 +353,7 @@ export default function ClinicShift() {
                             title="Xóa ca làm việc"
                           >
                             {deletingIdAction === s.id ? (
-                              <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+                              <Spinner size="sm" color="gray" />
                             ) : (
                               <Trash2 className="h-5 w-5 text-red-600 hover:text-red-800 transition" />
                             )}
@@ -379,25 +380,32 @@ export default function ClinicShift() {
       </div>
 
       {/* Modal Thêm / Sửa */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-5 sticky top-0 z-10">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {editingId ? 'Chỉnh sửa ca làm việc' : 'Thêm ca làm việc mới'}
-              </h2>
-              <button
-                onClick={closeModal}
-                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="max-h-[75vh] overflow-y-auto p-6">
+      <Modal
+        open={isModalOpen}
+        onClose={closeModal}
+        title={<span className="text-2xl">{editingId ? 'Chỉnh sửa ca làm việc' : 'Thêm ca làm việc mới'}</span>}
+        size="2xl"
+        closeOnBackdrop={false}
+        className="rounded-2xl!"
+        footer={
+          <>
+            <button
+              onClick={closeModal}
+              disabled={loading}
+              className="rounded-xl border border-gray-300 bg-white px-6 py-3 font-medium text-gray-700 hover:bg-gray-100 transition"
+            >
+              Hủy bỏ
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="rounded-xl bg-teal-600 px-7 py-3 font-medium text-white shadow-lg shadow-teal-600/30 hover:bg-teal-700 disabled:opacity-60 transition"
+            >
+              {loading ? 'Đang lưu...' : editingId ? 'Cập nhật' : 'Thêm mới'}
+            </button>
+          </>
+        }
+      >
               {/* Error */}
               {error && (
                 <div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -501,34 +509,18 @@ export default function ClinicShift() {
                   />
                 </div>
               </div>
-            </div>
-
-            {/* Footer */}
-            <div className="flex justify-end gap-3 border-t border-gray-200 bg-gray-50/80 px-6 py-5">
-              <button
-                onClick={closeModal}
-                disabled={loading}
-                className="rounded-xl border border-gray-300 bg-white px-6 py-3 font-medium text-gray-700 hover:bg-gray-100 transition"
-              >
-                Hủy bỏ
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="rounded-xl bg-teal-600 px-7 py-3 font-medium text-white shadow-lg shadow-teal-600/30 hover:bg-teal-700 disabled:opacity-60 transition"
-              >
-                {loading ? 'Đang lưu...' : editingId ? 'Cập nhật' : 'Thêm mới'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Modal Xóa */}
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white shadow-2xl">
-            <div className="p-8 text-center">
+      <Modal
+        open={isDeleteModalOpen}
+        onClose={() => !loading && closeDeleteModal()}
+        size="md"
+        closeOnBackdrop={false}
+        showCloseButton={false}
+        className="rounded-2xl!"
+        bodyClassName="p-8! text-center"
+      >
               <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
                 <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -553,10 +545,7 @@ export default function ClinicShift() {
                   {loading ? 'Đang xóa...' : 'Xóa vĩnh viễn'}
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
     </div>
   );
 }

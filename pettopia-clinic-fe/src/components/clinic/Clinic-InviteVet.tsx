@@ -12,6 +12,7 @@ import {
 import { getClinicVets, ClinicMembersResponse, VetMember } from '@/services/partner/veterianrianService';
 import Link from 'next/link';
 import { sendInvitation } from '@/services/partner/clinicService';
+import { Spinner, EmptyState } from '@/components/ui';
 
 type StatusType = 'accepted' | 'pending';
 
@@ -310,7 +311,7 @@ export default function Dashboard() {
 
                 {loading && (
                     <div className="p-12 text-center">
-                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+                        <Spinner size="lg" color="teal" />
                         <p className="text-gray-500 mt-4">Đang tải danh sách bác sĩ...</p>
                     </div>
                 )}
@@ -332,11 +333,11 @@ export default function Dashboard() {
                 {!loading && !error && (
                     <>
                         {invitedVets.length === 0 ? (
-                            <div className="p-12 text-center">
-                                <UserGroupIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                                <p className="text-gray-500 text-lg">Chưa có bác sĩ nào trong danh sách</p>
-                                <p className="text-gray-400 text-sm mt-2">Hãy mời bác sĩ tham gia phòng khám của bạn</p>
-                            </div>
+                            <EmptyState
+                                icon={<UserGroupIcon className="w-16 h-16 text-gray-300" />}
+                                title="Chưa có bác sĩ nào trong danh sách"
+                                description="Hãy mời bác sĩ tham gia phòng khám của bạn"
+                            />
                         ) : (
                             <div className="divide-y divide-teal-50">
                                 {invitedVets.map((vet) => (

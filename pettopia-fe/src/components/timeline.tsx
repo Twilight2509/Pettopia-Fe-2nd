@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { Modal } from '@/components/ui';
 
 interface TimelineEvent {
   id: string;
@@ -294,22 +295,15 @@ export default function PetTimeline() {
         </motion.div>
 
         {/* Event detail modal */}
-        <AnimatePresence>
           {selectedEvent && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedEvent(null)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+            <Modal
+              open
+              onClose={() => setSelectedEvent(null)}
+              size="lg"
+              showCloseButton={false}
+              className="rounded-3xl!"
+              bodyClassName="p-8!"
             >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                onClick={(e) => e.stopPropagation()}
-                className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl"
-              >
                 <div className="flex justify-between items-start mb-6">
                   <h2 className="text-2xl font-bold text-gray-800">{selectedEvent.title}</h2>
                   <button
@@ -363,10 +357,8 @@ export default function PetTimeline() {
                 >
                   Đóng
                 </button>
-              </motion.div>
-            </motion.div>
+            </Modal>
           )}
-        </AnimatePresence>
       </div>
     </div>
   );

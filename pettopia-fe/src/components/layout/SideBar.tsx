@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { getPetsByOwner, type PetDetailResponse } from '@/services/petcare/petService';
 import SearchModal, { type MenuItem } from '@/components/layout/SearchModal';
+import { Modal } from '@/components/ui';
 import { Pacifico } from 'next/font/google';
 import { toast } from 'react-hot-toast';
 
@@ -587,22 +588,35 @@ export default function UserNavbar({ setShowSearch, showSearch }: UserNavbarProp
       </div>
 
       {/* Settings Modal */}
-      {isSettingsModalOpen && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">Cài đặt - tính năng đang phát triển</h2>
-              <button
-                onClick={() => setIsSettingsModalOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
+      <Modal
+        open={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        size="2xl"
+        closeOnBackdrop={false}
+        title={<span className="text-2xl">Cài đặt - tính năng đang phát triển</span>}
+        bodyClassName="space-y-6"
+        footer={
+          <>
+            <button
+              onClick={() => setIsSettingsModalOpen(false)}
+              className="px-6 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={() => {
+                toast('Chức năng này đang phát triển', { duration: 3000, position: 'top-right' });
+                setTimeout(() => {
+                  setIsSettingsModalOpen(false);
+                }, 3000);
+              }}
+              className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+            >
+              Lưu thay đổi
+            </button>
+          </>
+        }
+      >
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Thông báo</h3>
                 <div className="space-y-3">
@@ -649,30 +663,7 @@ export default function UserNavbar({ setShowSearch, showSearch }: UserNavbarProp
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
-              <button
-                onClick={() => setIsSettingsModalOpen(false)}
-                className="px-6 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={() => {
-                  toast('Chức năng này đang phát triển', { duration: 3000, position: 'top-right' });
-                  setTimeout(() => {
-                    setIsSettingsModalOpen(false);
-                  }, 3000);
-                }}
-                className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-              >
-                Lưu thay đổi
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Search Modal */}
       <SearchModal

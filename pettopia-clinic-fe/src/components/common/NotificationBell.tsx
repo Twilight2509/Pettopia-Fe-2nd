@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getAppointments, type AppointmentData } from '@/services/partner/clinicService';
 import { getCustomerById } from '@/services/customer/customerService';
 import { parseJwt } from '@/utils/jwt';
+import { Spinner } from '@/components/ui';
 
 interface NotificationBellProps {
     notificationCount?: number;
@@ -260,7 +261,7 @@ export default function NotificationBell({ notificationCount }: NotificationBell
                     <div className="max-h-[500px] overflow-y-auto">
                         {loading ? (
                             <div className="p-8 text-center">
-                                <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
+                                <Spinner size="sm" color="teal" />
                                 <p className="text-sm text-gray-500 mt-2">Đang tải...</p>
                             </div>
                         ) : notifications.length === 0 ? (

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/contexts/ToastContext";
 import { communicationService, Post, Comment } from "@/services/communication/communicationService";
 import { parseJwt } from "@/utils/jwt";
+import { LoadingState, Modal } from "@/components/ui";
 
 interface LightboxState {
   isOpen: boolean;
@@ -256,12 +257,7 @@ export default function PostDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Đang tải...</p>
-        </div>
-      </div>
+      <LoadingState fullScreen color="blue" message="Đang tải..." className="py-0!" />
     );
   }
 
@@ -612,45 +608,44 @@ export default function PostDetailPage() {
       )}
 
       {/* Report Modal */}
-      {showReportModal && (
-        <div className="fixed inset-0 bg-black/5 backdrop-blur-sm flex items-center justify-center z-50 border" onClick={() => setShowReportModal(false)}>
-          <div
-            className="bg-white rounded-lg p-6 w-full max-w-md mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Báo cáo bài viết</h3>
-            <p className="text-sm text-gray-600 mb-4">Vui lòng cho biết lý do báo cáo bài viết này.</p>
-            <textarea
-              value={reportReason}
-              onChange={(e) => setReportReason(e.target.value)}
-              placeholder="Ví dụ: spam, nội dung không phù hợp, vi phạm bản quyền..."
-              className="w-full h-32 p-3 border border-gray-300 rounded-lg resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors text-sm"
-              maxLength={200}
-            />
-            <div className="flex justify-end gap-3 mt-4">
-              <button
-                onClick={() => {
-                  setShowReportModal(false);
-                  setReportReason("");
-                }}
-                disabled={reporting}
-                className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleReport}
-                disabled={reporting || !reportReason.trim()}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
-                  reporting || !reportReason.trim() ? "bg-red-300 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
-                }`}
-              >
-                {reporting ? "Đang gửi..." : "Gửi báo cáo"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        size="md"
+        title="Báo cáo bài viết"
+        footer={
+          <>
+            <button
+              onClick={() => {
+                setShowReportModal(false);
+                setReportReason("");
+              }}
+              disabled={reporting}
+              className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={handleReport}
+              disabled={reporting || !reportReason.trim()}
+              className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
+                reporting || !reportReason.trim() ? "bg-red-300 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+              }`}
+            >
+              {reporting ? "Đang gửi..." : "Gửi báo cáo"}
+            </button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-600 mb-4">Vui lòng cho biết lý do báo cáo bài viết này.</p>
+        <textarea
+          value={reportReason}
+          onChange={(e) => setReportReason(e.target.value)}
+          placeholder="Ví dụ: spam, nội dung không phù hợp, vi phạm bản quyền..."
+          className="w-full h-32 p-3 border border-gray-300 rounded-lg resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors text-sm"
+          maxLength={200}
+        />
+      </Modal>
     </div>
   );
 }

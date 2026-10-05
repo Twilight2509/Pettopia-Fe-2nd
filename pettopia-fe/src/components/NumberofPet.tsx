@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getPetsByOwner } from '@/services/petcare/petService';
+import { LoadingState } from '@/components/ui';
 
 interface Pet {
     id: string | number;
@@ -88,14 +89,7 @@ export default function PetCards({ userId, onPetsLoaded }: PetCardsProps) {
 
     if (loading) {
         return (
-            <div className="w-full py-20">
-                <div className="flex items-center justify-center">
-                    <div className="text-center">
-                        <div className="w-16 h-16 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                        <p className="text-gray-600">Đang tải danh sách thú cưng...</p>
-                    </div>
-                </div>
-            </div>
+            <LoadingState size="xl" message="Đang tải danh sách thú cưng..." className="w-full py-20!" />
         );
     }
 

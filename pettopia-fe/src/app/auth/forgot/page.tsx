@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { forgotPassword, resetPassword } from '@/services/auth/authService';
+import { Spinner } from '@/components/ui';
 
 type Step = 'email' | 'verify' | 'success';
 type ErrorType = 'otp' | 'password' | 'general';
@@ -260,7 +261,7 @@ export default function ForgotPasswordForm() {
                     <h2 className="text-1xl font-bold text-gray-800 mb-2">Đặt lại mật khẩu thành công!</h2>
                     <p className="text-gray-500 mb-4">Mật khẩu của bạn đã được thay đổi</p>
                     <p className="text-gray-500 text-sm flex items-center justify-center gap-2">
-                        <span className="inline-block w-4 h-4 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></span>
+                        <Spinner size="xs" />
                         Đang chuyển về trang đăng nhập...
                     </p>
                 </div>
@@ -378,7 +379,7 @@ export default function ForgotPasswordForm() {
                                     >
                                         {isLoading ? (
                                             <span className="flex items-center justify-center gap-2">
-                                                <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                                <Spinner size="xs" color="white" />
                                                 Đang gửi mã OTP...
                                             </span>
                                         ) : (
@@ -523,7 +524,7 @@ export default function ForgotPasswordForm() {
                                     >
                                         {isLoading ? (
                                             <span className="flex items-center justify-center gap-2">
-                                                <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                                <Spinner size="xs" color="white" />
                                                 Đang xử lý...
                                             </span>
                                         ) : (

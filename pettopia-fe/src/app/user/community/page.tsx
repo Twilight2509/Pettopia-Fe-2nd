@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { communicationService } from '@/services/communication/communicationService';
+import { Spinner, EmptyState } from '@/components/ui';
 
 const SearchIcon = ({ size = 18, className = '', ...props }: { size?: number; className?: string }) => (
   <svg
@@ -87,7 +88,7 @@ export default function CommunityPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mb-4"></div>
+          <Spinner size="lg" className="mb-4" />
           <div className="text-xl text-gray-600 font-medium">Đang tải bài viết...</div>
         </div>
       </div>
@@ -139,11 +140,12 @@ export default function CommunityPage() {
           <div className="lg:col-span-8 lg:col-start-1">
             <div className="space-y-6">
               {filteredPosts.length === 0 ? (
-                <div className="text-center py-20">
-                  <div className="text-6xl mb-4 opacity-30">🔍</div>
-                  <div className="text-gray-500 text-xl font-medium">Không tìm thấy bài viết nào</div>
-                  <div className="text-gray-400 text-sm mt-2">Thử tìm kiếm với từ khóa khác</div>
-                </div>
+                <EmptyState
+                  className="py-20!"
+                  icon={<div className="text-6xl opacity-30">🔍</div>}
+                  title="Không tìm thấy bài viết nào"
+                  description="Thử tìm kiếm với từ khóa khác"
+                />
               ) : (
                 filteredPosts.map((post) => {
                   const firstImage = post.images?.[0];
