@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { createUser } from "@/services/auth/authService";
 import { useToast } from "@/contexts/ToastContext";
 import Image from "next/image";
-import axios from "axios";
+import { fetchAreaData } from "@/services/location/locationService";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 type FormData = {
@@ -99,17 +99,7 @@ export default function RegisterForm() {
   const selectedCity = watch("city");
   const selectedDistrict = watch("district");
 
-  const fetchWithRetry = async (url: string, retries = 3) => {
-    for (let i = 0; i < retries; i++) {
-      try {
-        const response = await axios.get(url);
-        return response.data;
-      } catch (error) {
-        if (i === retries - 1) throw error;
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-    }
-  };
+  const fetchWithRetry = fetchAreaData;
 
   const fetchProvinces = async () => {
     setIsLoadingProvinces(true);

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { getCustomerProfile, updateCustomerProfile } from "@/services/user/userService";
 import { Mail, MapPin, Calendar, Phone, Home, Clock, Edit3, ArrowLeft, Loader } from 'lucide-react';
-import axios from "axios";
+import { fetchAreaData } from "@/services/location/locationService";
 
 interface User {
   id: string;
@@ -110,17 +110,7 @@ export default function EditProfilePage() {
     }
   };
 
-  const fetchWithRetry = async (url: string, retries = 3) => {
-    for (let i = 0; i < retries; i++) {
-      try {
-        const response = await axios.get(url);
-        return response.data;
-      } catch (error) {
-        if (i === retries - 1) throw error;
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-    }
-  };
+  const fetchWithRetry = fetchAreaData;
 
   const fetchProvinces = async () => {
     setIsLoadingProvinces(true);

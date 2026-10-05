@@ -5,7 +5,6 @@ import type { Appointment, AppointmentsResponse } from '@/services/petcare/petSe
 import { getAppointments } from '@/services/petcare/petService';
 import { useToast } from '@/contexts/ToastContext';
 import Link from 'next/link';
-import axios from 'axios';
 
 // Icons
 const ChevronLeftIcon = ({ className }: { className?: string }) => (
@@ -53,8 +52,6 @@ const ViewAppointmentsPage = () => {
     const fetchAppointments = async () => {
       try {
         setLoading(true);
-        const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-        if (token) axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         const response: AppointmentsResponse = await getAppointments({ page: 1, limit: 200 });
         setAppointments(response.data);
       } catch (err: any) {

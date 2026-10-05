@@ -4,7 +4,6 @@ import Link from "next/link";
 import PetCards from '@/components/NumberofPet';
 import { getAppointments } from '@/services/petcare/petService';
 import type { Appointment, AppointmentsResponse } from '@/services/petcare/petService';
-import axios from 'axios';
 
 // Timeline Component - Simplified without Calendar
 const AppointmentTimeline = memo(function AppointmentTimeline() {
@@ -16,11 +15,6 @@ const AppointmentTimeline = memo(function AppointmentTimeline() {
     const fetchAppointments = async () => {
       try {
         setLoading(true);
-        let token: string | null = null;
-        if (typeof window !== 'undefined') {
-          token = localStorage.getItem('authToken');
-        }
-        if (token) axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         const response: AppointmentsResponse = await getAppointments({ page: 1, limit: 50 });
 
         // Lọc chỉ lấy lịch hẹn sắp tới (chưa qua và chưa hủy)

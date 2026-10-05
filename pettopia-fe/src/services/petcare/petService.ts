@@ -1,19 +1,7 @@
-import axios from 'axios';
-
-// ================ AUTH HELPER ================
-function getAuthToken(): string | null {
-    return localStorage.getItem('authToken');
-}
-
-function authHeaders() {
-    const token = getAuthToken();
-    // return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-      if (!token) return {};
-    return { headers: { token } };
-}
+import { API_BASE_URL, apiClient, getAuthToken, isApiError, publicApiClient, type AxiosError } from '@/services/apiClient';
 
 // ================ PET APIs ================
-const PET_API_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/pet`; // ĐÃ SỬA: DÙNG .env
+const PET_API_URL = '/pet';
 
 export interface CreatePetPayload {
     name: string;
@@ -49,14 +37,13 @@ export async function createPet(payload: CreatePetPayload) {
         // File ảnh – tên field có thể cần chỉnh theo spec backend (ví dụ: 'avatar' hoặc 'avatarFile')
         formData.append('avatar', payload.avatarFile);
 
-        const base = authHeaders();
-        const response = await axios.post(PET_API_URL + '/create', formData, base);
+        const response = await apiClient.post(PET_API_URL + '/create', formData);
         return response.data;
     }
 
     // Không có file, gửi JSON như cũ
     const { avatarFile, ...rest } = payload as any;
-    const response = await axios.post(PET_API_URL + '/create', rest, authHeaders());
+    const response = await apiClient.post(PET_API_URL + '/create', rest);
     return response.data;
 }
 
@@ -108,9 +95,14 @@ export interface PetDetailResponse {
 }
 
 export async function getPetById(petId: string): Promise<PetDetailResponse> {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/pet/${encodeURIComponent(petId)}`; // ĐÃ SỬA
-    const res = await axios.get(url, authHeaders());
+    const url = `/pet/${encodeURIComponent(petId)}`;
+    const res = await apiClient.get(url);
     return res.data?.data || res.data;
+}
+
+export async function getPetPublicInfo(petId: string) {
+    const response = await publicApiClient.get(`/pet/${petId}/info`);
+    return response.data;
 }
 
 export interface UpdatePetPayload {
@@ -125,21 +117,21 @@ export interface UpdatePetPayload {
 }
 
 export async function updatePet(petId: string, payload: UpdatePetPayload) {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/pet/${encodeURIComponent(petId)}`; // ĐÃ SỬA
-    const response = await axios.patch(url, payload, authHeaders());
+    const url = `/pet/${encodeURIComponent(petId)}`;
+    const response = await apiClient.patch(url, payload);
     return response.data;
 }
 
 export async function deletePet(petId: string) {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/pet/${encodeURIComponent(petId)}`; // ĐÃ SỬA
-    const response = await axios.delete(url, authHeaders());
+    const url = `/pet/${encodeURIComponent(petId)}`;
+    const response = await apiClient.delete(url);
     return response.data;
 }
 
 export async function getPetsByOwner(userId: string): Promise<PetDetailResponse[]> {
   try {
     const url = `${PET_API_URL}/owner/${userId}`;
-    const response = await axios.get(url, authHeaders());
+    const response = await apiClient.get(url);
     const petsData = response.data?.data || response.data || [];
     return Array.isArray(petsData) ? petsData : [];
   } catch (error) {
@@ -182,10 +174,9 @@ export interface GetAppointmentsParams {
 
 export async function getAppointments(params?: GetAppointmentsParams): Promise<AppointmentsResponse> {
     const { page = 1, limit = 10 } = params || {};
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare/appointments`; // ĐÃ SỬA
-    const response = await axios.get(url, {
+    const url = '/healthcare/appointments';
+    const response = await apiClient.get(url, {
         params: { page, limit },
-        ...authHeaders(),
     });
     return response.data;
 }
@@ -270,13 +261,8 @@ export interface AppointmentDetailResponse {
 }
 
 export async function getAppointmentDetail(appointmentId: string): Promise<AppointmentDetail> {
-    const token = getAuthToken();
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare/appointments/${encodeURIComponent(appointmentId)}`;
-    const response = await axios.get(url, {
-        headers: {
-            ...(token && { 'token': token }),
-        },
-    });
+    const url = `/healthcare/appointments/${encodeURIComponent(appointmentId)}`;
+    const response = await apiClient.get(url);
     // API trả về { status, message, data: { ... } } theo ví dụ, nên trả về phần data
     return response.data?.data || response.data;
 }
@@ -296,8 +282,8 @@ export interface ServiceDetail {
 
 export async function getServiceDetail(serviceId: string): Promise<ServiceDetail> {
     try {
-        const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare/services/${encodeURIComponent(serviceId)}`; // ĐÃ SỬA
-        const response = await axios.get(url, authHeaders());
+        const url = `/healthcare/services/${encodeURIComponent(serviceId)}`;
+        const response = await apiClient.get(url);
         // Một số API trả về { data: {...} }, nên lấy linh hoạt
         return response.data?.data || response.data;
     } catch (error) {
@@ -318,8 +304,8 @@ export interface ClinicDetail {
 }
 
 export async function getClinicDetail(clinicId: string): Promise<ClinicDetail> {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare/clinics/${encodeURIComponent(clinicId)}`; // ĐÃ SỬA
-    const response = await axios.get(url, authHeaders());
+    const url = `/healthcare/clinics/${encodeURIComponent(clinicId)}`;
+    const response = await apiClient.get(url);
     return response.data?.data || response.data;
 }
 
@@ -349,8 +335,8 @@ export interface ClinicsResponse {
 
 export async function getClinics(page = 1, limit = 10): Promise<Clinic[]> {
   try {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/partner/clinic?page=${page}&limit=${limit}`;
-    const response = await axios.get(url, authHeaders());
+    const url = `/partner/clinic?page=${page}&limit=${limit}`;
+    const response = await apiClient.get(url);
     const clinics = response.data?.data?.items || response.data?.data || [];
     return clinics.filter((clinic: Clinic) => clinic.is_active);
   } catch (error) {
@@ -378,8 +364,8 @@ export interface ServicesResponse {
 
 export async function getServicesByClinic(clinicId: string): Promise<Service[]> {
   try {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/partner/service/${encodeURIComponent(clinicId)}`;
-    const response = await axios.get(url, authHeaders());
+    const url = `/partner/service/${encodeURIComponent(clinicId)}`;
+    const response = await apiClient.get(url);
     const services = response.data?.data?.items || response.data?.data || [];
     return services.filter((s: any) => s.is_active).map((s: any) => ({
       id: s.id,
@@ -406,8 +392,8 @@ export interface Shift {
 
 export async function getShiftsByClinic(clinicId: string): Promise<Shift[]> {
   try {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/partner/clinic/shift/${encodeURIComponent(clinicId)}`;
-    const response = await axios.get(url, authHeaders());
+    const url = `/partner/clinic/shift/${encodeURIComponent(clinicId)}`;
+    const response = await apiClient.get(url);
     const shifts = response.data?.data || [];
     return shifts.filter((s: any) => s.is_active).map((s: any) => ({
       id: s.id,
@@ -434,8 +420,8 @@ export interface BookingPayload {
 
 export async function bookAppointment(payload: BookingPayload) {
   try {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare/appointment`;
-    const response = await axios.post(url, payload, authHeaders());
+    const url = '/healthcare/appointment';
+    const response = await apiClient.post(url, payload);
     return response.data;
   } catch (error) {
     logAxiosError('bookAppointment', error);
@@ -471,8 +457,8 @@ export interface AppointmentRatingResponse {
 
 export async function getAppointmentRating(appointmentId: string): Promise<AppointmentRating | null> {
   try {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare/appointments/${encodeURIComponent(appointmentId)}/rating`;
-    const response = await axios.get<AppointmentRatingResponse>(url, authHeaders());
+    const url = `/healthcare/appointments/${encodeURIComponent(appointmentId)}/rating`;
+    const response = await apiClient.get<AppointmentRatingResponse>(url);
     return response.data?.data || null;
   } catch (error: any) {
     // Nếu không tìm thấy rating (404), trả về null
@@ -486,8 +472,8 @@ export async function getAppointmentRating(appointmentId: string): Promise<Appoi
 
 export async function rateAppointment(appointmentId: string, payload: RatingPayload) {
   try {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare/appointments/${encodeURIComponent(appointmentId)}/rating`;
-    const response = await axios.post(url, payload, authHeaders());
+    const url = `/healthcare/appointments/${encodeURIComponent(appointmentId)}/rating`;
+    const response = await apiClient.post(url, payload);
     return response.data;
   } catch (error: any) {
     logAxiosError('rateAppointment', error);
@@ -517,8 +503,8 @@ export interface ClinicRatingResponse {
 
 export async function getClinicRating(clinicId: string): Promise<ClinicRatingStats> {
   try {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare/clinics/${encodeURIComponent(clinicId)}/rating`;
-    const response = await axios.get<ClinicRatingResponse>(url, authHeaders());
+    const url = `/healthcare/clinics/${encodeURIComponent(clinicId)}/rating`;
+    const response = await apiClient.get<ClinicRatingResponse>(url);
     return response.data?.data || response.data;
   } catch (error) {
     logAxiosError('getClinicRating', error);
@@ -540,13 +526,11 @@ export async function updateAppointmentStatus(
   if (!token) throw new Error('No authentication token found');
 
   try {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare/appointments/${appointmentId}/status`;
+    const url = `/healthcare/appointments/${appointmentId}/status`;
     const payload: Record<string, any> = { status };
     if (cancel_reason) payload.cancel_reason = cancel_reason;
-    
-    console.log('Updating appointment status:', { url, method: 'PATCH', body: payload });
 
-    const response = await axios.patch(url, payload, { headers: { 'token': token } });
+    const response = await apiClient.patch(url, payload);
     return response.data;
   } catch (error: any) {
     console.error("Lỗi khi cập nhật trạng thái lịch hẹn:", error);
@@ -564,13 +548,13 @@ export async function updateAppointmentStatus(
 }
 
 // ================ ERROR LOGGING ================
-function isAxiosError(err: unknown): err is import('axios').AxiosError {
-    return (axios as any).isAxiosError?.(err) === true;
+function isAxiosError(err: unknown): err is AxiosError {
+    return isApiError(err);
 }
 
 function logAxiosError(context: string, error: unknown) {
     if (isAxiosError(error)) {
-        const err = error as import('axios').AxiosError;
+        const err = error as AxiosError;
         console.error(`[${context}] Axios Error:`, {
             message: err.message,
             status: err.response?.status,
@@ -590,11 +574,11 @@ export async function callAIChat(userId: string, messages: { role: 'user'; conte
     let attempt = 0;
 
     
-    const AI_API_BASE = process.env.NEXT_PUBLIC_AI_API_URL || process.env.NEXT_PUBLIC_PETTOPIA_API_URL;
+    const AI_API_BASE = process.env.NEXT_PUBLIC_AI_API_URL || API_BASE_URL;
 
     while (attempt < maxRetries) {
         try {
-            const response = await axios.post(`${AI_API_BASE?.replace(/\/$/, '')}/ai/gemini/chat`, {
+            const response = await publicApiClient.post(`${AI_API_BASE.replace(/\/$/, '')}/ai/gemini/chat`, {
                 userId,
                 messages: messages.map(m => ({ role: 'user', content: m.content })) 
             });
@@ -637,13 +621,11 @@ export async function getAppointmentMedicalRecord(
   if (!token) throw new Error('No authentication token found');
 
   try {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare/appointments/${encodeURIComponent(
+    const url = `/healthcare/appointments/${encodeURIComponent(
       appointmentId
     )}/medical-record`;
 
-    const response = await axios.get(url, {
-      headers: { 'token': token }
-    });
+    const response = await apiClient.get(url);
 
     // API trả về { status, message, data: { ... } }, nên trả về phần data
     return response.data?.data || response.data;

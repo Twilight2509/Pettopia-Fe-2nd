@@ -1,17 +1,9 @@
-import axios from "axios";
+import { apiClient, requireAuthToken } from "@/services/apiClient";
 
-// Lấy base URL từ .env
-const API_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/partner/clinic`;
-const PARTNER_API_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/partner`;
-const HEALTHCARE_API_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare`;
-
-// Tạo instance Axios
-const axiosInstance = axios.create({
-  baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+const API_URL = "/partner/clinic";
+const PARTNER_API_URL = "/partner";
+const HEALTHCARE_API_URL = "/healthcare";
+const JSON_HEADERS = { "Content-Type": "application/json" };
 
 export interface ClinicFormData {
   user_id: string;
@@ -166,14 +158,10 @@ export interface MedicalRecordPayload {
 }
 
 export const registerClinic = async (clinicData: ClinicData) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axiosInstance.post("/register", clinicData, {
-      headers: { 'token': token },
-    });
-    console.log("API response:", response.data);
+    const response = await apiClient.post(`${API_URL}/register`, clinicData, { headers: JSON_HEADERS });
     return response.data;
   } catch (error: any) {
     console.error("Lỗi khi đăng ký phòng khám:", error.response?.data || error.message);
@@ -182,13 +170,10 @@ export const registerClinic = async (clinicData: ClinicData) => {
 };
 
 export const getClinicForms = async (page: number = 1, limit: number = 10) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axiosInstance.get(`/form?page=${page}&limit=${limit}`, {
-      headers: { 'token': token },
-    });
+    const response = await apiClient.get(`${API_URL}/form?page=${page}&limit=${limit}`, { headers: JSON_HEADERS });
     return response.data as ClinicFormsResponse;
   } catch (error) {
     console.error("Lỗi khi lấy danh sách form đăng ký phòng khám:", error);
@@ -197,16 +182,13 @@ export const getClinicForms = async (page: number = 1, limit: number = 10) => {
 };
 
 export const updateClinicFormStatus = async (formId: string, status: string, note?: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axiosInstance.post(`${API_URL}/status/${formId}`, {
+    const response = await apiClient.post(`${API_URL}/status/${formId}`, {
       status,
       note: note || (status === 'approved' ? 'Phòng khám đủ điều kiện hoạt động' : 'Phòng khám không đủ điều kiện hoạt động')
-    }, {
-      headers: { 'token': token },
-    });
+    }, { headers: JSON_HEADERS });
     return response.data;
   } catch (error) {
     console.error("Lỗi khi cập nhật trạng thái phòng khám:", error);
@@ -215,17 +197,13 @@ export const updateClinicFormStatus = async (formId: string, status: string, not
 };
 
 export const getClinicServices = async (page: number = 1, limit: number = 10, search?: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
     const params: Record<string, any> = { page, limit };
     if (search?.trim()) params.search = search.trim();
 
-    const response = await axios.get(`${PARTNER_API_URL}/service/all`, {
-      params,
-      headers: { 'token': token }
-    });
+    const response = await apiClient.get(`${PARTNER_API_URL}/service/all`, { params });
     return response.data;
   } catch (error) {
     console.error("Lỗi khi lấy danh sách service:", error);
@@ -234,13 +212,10 @@ export const getClinicServices = async (page: number = 1, limit: number = 10, se
 };
 
 export const createClinicService = async (serviceData: any) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.post(`${PARTNER_API_URL}/service`, serviceData, {
-      headers: { 'token': token }
-    });
+    const response = await apiClient.post(`${PARTNER_API_URL}/service`, serviceData);
     return response.data;
   } catch (error) {
     console.error("Lỗi khi tạo service:", error);
@@ -249,13 +224,10 @@ export const createClinicService = async (serviceData: any) => {
 };
 
 export const updateClinicService = async (serviceId: string, serviceData: any) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.patch(`${PARTNER_API_URL}/service/${serviceId}`, serviceData, {
-      headers: { 'token': token }
-    });
+    const response = await apiClient.patch(`${PARTNER_API_URL}/service/${serviceId}`, serviceData);
     return response.data;
   } catch (error) {
     console.error("Lỗi khi cập nhật service:", error);
@@ -264,13 +236,10 @@ export const updateClinicService = async (serviceId: string, serviceData: any) =
 };
 
 export const deleteClinicService = async (serviceId: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.delete(`${PARTNER_API_URL}/service/${serviceId}`, {
-      headers: { 'token': token }
-    });
+    const response = await apiClient.delete(`${PARTNER_API_URL}/service/${serviceId}`);
     return response.data;
   } catch (error: any) {
     console.error("Lỗi khi xóa service:", error);
@@ -279,14 +248,10 @@ export const deleteClinicService = async (serviceId: string) => {
 };
 
 export const getAppointments = async (page: number = 1, limit: number = 10) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.get(`${HEALTHCARE_API_URL}/appointments`, {
-      params: { page, limit },
-      headers: { 'token': token }
-    });
+    const response = await apiClient.get(`${HEALTHCARE_API_URL}/appointments`, { params: { page, limit } });
     return response.data as AppointmentsResponse;
   } catch (error) {
     console.error("Lỗi khi lấy danh sách lịch hẹn:", error);
@@ -295,13 +260,10 @@ export const getAppointments = async (page: number = 1, limit: number = 10) => {
 };
 
 export const getAppointmentDetail = async (appointmentId: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.get(`${HEALTHCARE_API_URL}/appointments/${appointmentId}`, {
-      headers: { 'token': token }
-    });
+    const response = await apiClient.get(`${HEALTHCARE_API_URL}/appointments/${appointmentId}`);
     return response.data as AppointmentDetailResponse;
   } catch (error) {
     console.error("Lỗi khi lấy chi tiết lịch hẹn:", error);
@@ -314,21 +276,13 @@ export const updateAppointmentStatus = async (
   status: string,
   cancel_reason?: string
 ) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
     const body: any = { status };
     if (cancel_reason) body.cancel_reason = cancel_reason;
 
-    const url = `${HEALTHCARE_API_URL}/appointments/${appointmentId}/status`;
-    console.log('Updating appointment status:', { url, method: 'PATCH', body });
-
-    const response = await axios.patch(
-      url,
-      body,
-      { headers: { 'token': token } }
-    );
+    const response = await apiClient.patch(`${HEALTHCARE_API_URL}/appointments/${appointmentId}/status`, body);
     return response.data;
   } catch (error: any) {
     console.error("Lỗi khi cập nhật trạng thái lịch hẹn:", error);
@@ -350,16 +304,11 @@ export const updateAppointmentStatus = async (
  * body: { vetId: string }
  */
 export const assignVetToAppointment = async (appointmentId: string, vetId: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
     const url = `${HEALTHCARE_API_URL}/appointments/${appointmentId}/assign-vet`;
-    const response = await axios.post(
-      url,
-      { vetId },
-      { headers: { 'token': token } }
-    );
+    const response = await apiClient.post(url, { vetId });
     return response.data;
   } catch (error: any) {
     console.error(`Lỗi khi gán vet cho lịch hẹn (${appointmentId}):`, error?.response?.data || error?.message || error);
@@ -372,14 +321,11 @@ export const assignVetToAppointment = async (appointmentId: string, vetId: strin
  * POST `${HEALTHCARE_API_URL}/appointments/{appointmentId}/medical-records`
  */
 export const createMedicalRecord = async (appointmentId: string, payload: MedicalRecordPayload) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
     const url = `${HEALTHCARE_API_URL}/appointments/${appointmentId}/medical-records`;
-    const response = await axios.post(url, payload, {
-      headers: { 'token': token, 'Content-Type': 'application/json' },
-    });
+    const response = await apiClient.post(url, payload, { headers: JSON_HEADERS });
     return response.data;
   } catch (error: any) {
     console.error(`Lỗi khi tạo medical record cho lịch hẹn (${appointmentId}):`, error?.response?.data || error?.message || error);
@@ -405,14 +351,11 @@ export interface MedicalRecordResponse {
  * GET `${HEALTHCARE_API_URL}/appointments/{appointmentId}/medical-record`
  */
 export const getMedicalRecord = async (appointmentId: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
     const url = `${HEALTHCARE_API_URL}/appointments/${appointmentId}/medical-record`;
-    const response = await axios.get(url, {
-      headers: { 'token': token },
-    });
+    const response = await apiClient.get(url);
     return response.data as MedicalRecordResponse;
   } catch (error: any) {
     console.error(`Lỗi khi lấy hồ sơ bệnh án (${appointmentId}):`, error?.response?.data || error?.message || error);
@@ -433,14 +376,11 @@ export interface UpdateMedicalRecordPayload {
  * Lưu ý: truyền `appointmentId` (id của lịch hẹn) làm param
  */
 export const updateMedicalRecord = async (appointmentId: string, payload: UpdateMedicalRecordPayload) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
     const url = `${HEALTHCARE_API_URL}/appointments/${appointmentId}/medical-record`;
-    const response = await axios.patch(url, payload, {
-      headers: { 'token': token, 'Content-Type': 'application/json' },
-    });
+    const response = await apiClient.patch(url, payload, { headers: JSON_HEADERS });
     return response.data;
   } catch (error: any) {
     console.error(`Lỗi khi cập nhật hồ sơ bệnh án (${appointmentId}):`, error?.response?.data || error?.message || error);
@@ -449,15 +389,10 @@ export const updateMedicalRecord = async (appointmentId: string, payload: Update
 };
 
 export const sendInvitation = async (email: string, role: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.post(
-      `${PARTNER_API_URL}/clinic/invitations`,
-      { email, role },
-      { headers: { 'token': token } }
-    );
+    const response = await apiClient.post(`${PARTNER_API_URL}/clinic/invitations`, { email, role });
     return response.data;
   } catch (error: any) {
     console.error("Lỗi khi gửi lời mời:", error.response?.data || error.message);
@@ -466,15 +401,10 @@ export const sendInvitation = async (email: string, role: string) => {
 };
 
 export const acceptInvitation = async (inviteId: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.post(
-      `${PARTNER_API_URL}/clinic/invitations/${inviteId}/accept`,
-      {},
-      { headers: { 'token': token } }
-    );
+    const response = await apiClient.post(`${PARTNER_API_URL}/clinic/invitations/${inviteId}/accept`, {});
     return response.data;
   } catch (error: any) {
     console.error("Lỗi khi chấp nhận lời mời:", error.response?.data || error.message);
@@ -483,15 +413,10 @@ export const acceptInvitation = async (inviteId: string) => {
 };
 
 export const declineInvitation = async (inviteId: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.post(
-      `${PARTNER_API_URL}/clinic/invitations/${inviteId}/decline`,
-      {},
-      { headers: { 'token': token } }
-    );
+    const response = await apiClient.post(`${PARTNER_API_URL}/clinic/invitations/${inviteId}/decline`, {});
     return response.data;
   } catch (error: any) {
     console.error("Lỗi khi từ chối lời mời:", error.response?.data || error.message);
@@ -504,13 +429,10 @@ export const declineInvitation = async (inviteId: string) => {
  * PUT `${API_URL}/${clinicId}`
  */
 export const updateClinic = async (clinicId: string, clinicData: Partial<ClinicItem>) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axiosInstance.put(`/${clinicId}`, clinicData, {
-      headers: { 'token': token },
-    });
+    const response = await apiClient.put(`${API_URL}/${clinicId}`, clinicData, { headers: JSON_HEADERS });
     return response.data;
   } catch (error: any) {
     console.error(`Lỗi khi cập nhật phòng khám (${clinicId}):`, error?.response?.data || error?.message || error);
@@ -523,13 +445,10 @@ export const updateClinic = async (clinicId: string, clinicData: Partial<ClinicI
  * DELETE `${API_URL}/${clinicId}`
  */
 export const removeClinic = async (clinicId: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axiosInstance.delete(`/${clinicId}`, {
-      headers: { 'token': token },
-    });
+    const response = await apiClient.delete(`${API_URL}/${clinicId}`, { headers: JSON_HEADERS });
     return response.data;
   } catch (error: any) {
     console.error(`Lỗi khi xóa phòng khám (${clinicId}):`, error?.response?.data || error?.message || error);
@@ -542,17 +461,13 @@ export const removeClinic = async (clinicId: string) => {
  * GET `${API_URL}?page=1&limit=5`
  */
 export const findAllClinics = async (page: number = 1, limit: number = 10, search?: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
     const params: Record<string, any> = { page, limit };
     if (search?.trim()) params.search = search.trim();
 
-    const response = await axiosInstance.get('/', {
-      params,
-      headers: { 'token': token },
-    });
+    const response = await apiClient.get(`${API_URL}/`, { params, headers: JSON_HEADERS });
 
     return response.data as ClinicsResponse;
   } catch (error) {
@@ -566,13 +481,10 @@ export const findAllClinics = async (page: number = 1, limit: number = 10, searc
  * GET `${API_URL}/${clinicId}`
  */
 export const getClinicDetail = async (clinicId: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axiosInstance.get(`/${clinicId}`, {
-      headers: { 'token': token },
-    });
+    const response = await apiClient.get(`${API_URL}/${clinicId}`, { headers: JSON_HEADERS });
 
     return response.data as ClinicDetailResponse;
   } catch (error) {
@@ -587,15 +499,10 @@ export const getClinicDetail = async (clinicId: string) => {
  * body: { is_active: boolean }
  */
 export const setClinicActive = async (clinicId: string, isActive: boolean) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axiosInstance.patch(
-      `/active/${clinicId}`,
-      { is_active: isActive },
-      { headers: { 'token': token } }
-    );
+    const response = await apiClient.patch(`${API_URL}/active/${clinicId}`, { is_active: isActive }, { headers: JSON_HEADERS });
     return response.data;
   } catch (error: any) {
     console.error(`Lỗi khi cập nhật trạng thái active phòng khám (${clinicId}):`, error?.response?.data || error?.message || error);

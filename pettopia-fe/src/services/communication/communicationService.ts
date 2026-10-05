@@ -1,6 +1,4 @@
-import axios from "axios";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_PETTOPIA_API_URL; // SỬA: chỉ dùng .env, bỏ fallback sau
+import { apiClient, type AxiosRequestConfig, type AxiosResponse } from "@/services/apiClient";
 
 type PostsEnvelope = {
   data?: Post[];
@@ -90,7 +88,7 @@ class CommunicationService {
   private token: string | null;
 
   constructor() {
-    this.baseUrl = `${API_BASE_URL}/communication`;
+    this.baseUrl = '/communication';
     this.token = null;
   }
 
@@ -99,27 +97,20 @@ class CommunicationService {
     this.token = token;
   }
 
-  // Get authentication headers
-  private getHeaders(contentType: string = 'application/json'): HeadersInit {
-    const headers: HeadersInit = {
-      'Content-Type': contentType,
-    };
-
-    // Get token from localStorage
-    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-    if (token) {
-      headers['token'] = token;
-    }
-
-    return headers;
+  private send(config: AxiosRequestConfig): Promise<AxiosResponse> {
+    return apiClient.request({ ...config, validateStatus: () => true });
   }
 
-  private async handleResponse<T>(response: Response): Promise<T> {
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+  private isOk(response: AxiosResponse): boolean {
+    return response.status >= 200 && response.status < 300;
+  }
+
+  private handleResponse<T>(response: AxiosResponse): T {
+    if (!this.isOk(response)) {
+      const errorData = response.data && typeof response.data === 'object' ? response.data : {};
       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
-    return response.json();
+    return response.data as T;
   }
 
   // ==================== POST OPERATIONS ====================
@@ -129,10 +120,7 @@ class CommunicationService {
    * Endpoint: GET /api/v1/communication/all
    */
   async getAllPosts(): Promise<Post[]> {
-    const response = await fetch(`${this.baseUrl}/all`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'GET', url: `${this.baseUrl}/all` });
     return this.handleResponse<Post[]>(response);
   }
 
@@ -141,10 +129,7 @@ class CommunicationService {
    * Endpoint: GET /api/v1/communication/:id
    */
   async getPostById(postId: string): Promise<Post> {
-    const response = await fetch(`${this.baseUrl}/${postId}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'GET', url: `${this.baseUrl}/${postId}` });
     return this.handleResponse<Post>(response);
   }
 
@@ -152,10 +137,7 @@ class CommunicationService {
    * Get posts by user ID
    */
   async getPostsByUserId(userId: string): Promise<Post[]> {
-    const response = await fetch(`${this.baseUrl}/user/${userId}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'GET', url: `${this.baseUrl}/user/${userId}` });
     return this.handleResponse<Post[]>(response);
   }
 
@@ -190,14 +172,7 @@ class CommunicationService {
       }
     }
 
-    const response = await fetch(`${this.baseUrl}/create`, {
-      method: 'POST',
-      headers: {
-        ...(typeof window !== 'undefined' && localStorage.getItem('authToken') && { 'token': localStorage.getItem('authToken')! }),
-        // Do NOT set Content-Type here; browser will set correct multipart boundary
-      },
-      body: formData,
-    });
+    const response = await this.send({ method: 'POST', url: `${this.baseUrl}/create`, data: formData });
     return this.handleResponse<Post>(response);
   }
 
@@ -224,14 +199,7 @@ class CommunicationService {
       }
     }
 
-    const response = await fetch(`${this.baseUrl}/${postId}`, {
-      method: 'PATCH',
-      headers: {
-        ...(typeof window !== 'undefined' && localStorage.getItem('authToken') && { 'token': localStorage.getItem('authToken')! }),
-        // Do NOT set Content-Type; browser will set multipart boundary
-      },
-      body: formData,
-    });
+    const response = await this.send({ method: 'PATCH', url: `${this.baseUrl}/${postId}`, data: formData });
     return this.handleResponse<Post>(response);
   }
 
@@ -240,22 +208,15 @@ class CommunicationService {
    * Endpoint: DELETE /api/v1/communication/:id
    */
   async deletePost(postId: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/${postId}`, {
-      method: 'DELETE',
-      headers: this.getHeaders(),
-    });
-    if (!response.ok) throw new Error('Failed to delete post');
+    const response = await this.send({ method: 'DELETE', url: `${this.baseUrl}/${postId}` });
+    if (!this.isOk(response)) throw new Error('Failed to delete post');
   }
 
   /**
    * Hide/Unhide a post (soft delete)
    */
   async toggleHidePost(postId: string, isHidden: boolean): Promise<Post> {
-    const response = await fetch(`${this.baseUrl}/${postId}/hide`, {
-      method: 'PATCH',
-      headers: this.getHeaders(),
-      body: JSON.stringify({ isHidden }),
-    });
+    const response = await this.send({ method: 'PATCH', url: `${this.baseUrl}/${postId}/hide`, data: { isHidden } });
     return this.handleResponse<Post>(response);
   }
 
@@ -271,10 +232,7 @@ class CommunicationService {
    * Like a post
    */
   async likePost(postId: string): Promise<{ message: string; likeCount: number }> {
-    const response = await fetch(`${this.baseUrl}/${postId}/like`, {
-      method: 'POST',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'POST', url: `${this.baseUrl}/${postId}/like` });
     return this.handleResponse<{ message: string; likeCount: number }>(response);
   }
 
@@ -282,10 +240,7 @@ class CommunicationService {
    * Unlike a post
    */
   async unlikePost(postId: string): Promise<{ message: string; likeCount: number }> {
-    const response = await fetch(`${this.baseUrl}/${postId}/like`, {
-      method: 'DELETE',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'DELETE', url: `${this.baseUrl}/${postId}/like` });
     return this.handleResponse<{ message: string; likeCount: number }>(response);
   }
 
@@ -295,10 +250,7 @@ class CommunicationService {
    * Get comments for a post
    */
   async getComments(postId: string): Promise<Comment[]> {
-    const response = await fetch(`${this.baseUrl}/${postId}/comments`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'GET', url: `${this.baseUrl}/${postId}/comments` });
     return this.handleResponse<Comment[]>(response);
   }
 
@@ -307,11 +259,7 @@ class CommunicationService {
    * Endpoint: POST /api/v1/communication/:id/comment
    */
   async createComment(data: CommentData): Promise<Comment> {
-    const response = await fetch(`${this.baseUrl}/${data.post_id}/comment`, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      body: JSON.stringify(data),
-    });
+    const response = await this.send({ method: 'POST', url: `${this.baseUrl}/${data.post_id}/comment`, data: data });
     return this.handleResponse<Comment>(response);
   }
 
@@ -320,11 +268,7 @@ class CommunicationService {
    * Endpoint: PATCH /api/v1/communication/:id/comment/:comment_id
    */
   async updateComment(postId: string, commentId: string, content: string): Promise<Comment> {
-    const response = await fetch(`${this.baseUrl}/${postId}/comment/${commentId}`, {
-      method: 'PATCH',
-      headers: this.getHeaders(),
-      body: JSON.stringify({ content }),
-    });
+    const response = await this.send({ method: 'PATCH', url: `${this.baseUrl}/${postId}/comment/${commentId}`, data: { content } });
     return this.handleResponse<Comment>(response);
   }
 
@@ -333,10 +277,7 @@ class CommunicationService {
    * Endpoint: DELETE /api/v1/communication/:id/comment/:comment_id
    */
   async deleteComment(postId: string, commentId: string): Promise<{ message: string }> {
-    const response = await fetch(`${this.baseUrl}/${postId}/comment/${commentId}`, {
-      method: 'DELETE',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'DELETE', url: `${this.baseUrl}/${postId}/comment/${commentId}` });
     return this.handleResponse<{ message: string }>(response);
   }
 
@@ -344,10 +285,7 @@ class CommunicationService {
    * Like a comment
    */
   async likeComment(postId: string, commentId: string): Promise<{ message: string; likeCount: number }> {
-    const response = await fetch(`${this.baseUrl}/${postId}/comment/${commentId}/like`, {
-      method: 'POST',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'POST', url: `${this.baseUrl}/${postId}/comment/${commentId}/like` });
     return this.handleResponse<{ message: string; likeCount: number }>(response);
   }
 
@@ -355,10 +293,7 @@ class CommunicationService {
    * Unlike a comment
    */
   async unlikeComment(postId: string, commentId: string): Promise<{ message: string; likeCount: number }> {
-    const response = await fetch(`${this.baseUrl}/${postId}/comment/${commentId}/like`, {
-      method: 'DELETE',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'DELETE', url: `${this.baseUrl}/${postId}/comment/${commentId}/like` });
     return this.handleResponse<{ message: string; likeCount: number }>(response);
   }
 
@@ -370,33 +305,23 @@ Report a post
  */
   async reportPost(postId: string, reason: string): Promise<{ message: string; reportCount?: number }> 
   {
-    const response = await fetch(`${this.baseUrl}/${postId}/report`, {
-      method: 'POST',
-      headers: this.getHeaders(), // Có 'Content-Type': 'application/json' và token
-      body: JSON.stringify({ reason }),
-    });
+    const response = await this.send({ method: 'POST', url: `${this.baseUrl}/${postId}/report`, data: { reason } });
 
     // Nếu response không ok → lấy message chi tiết từ backend
-    if (!response.ok) {
+    if (!this.isOk(response)) {
       let errorMessage = 'You already reported this post';
-      try {
-        const errorData = await response.json();
-        // Backend thường trả về { message: "Bạn đã báo cáo bài viết này rồi" }
+      const errorData = response.data;
+      if (errorData && typeof errorData === 'object') {
         if (errorData.message) {
           errorMessage = "You've already reported this post";
-        } else if (typeof errorData === 'string') {
-          errorMessage = errorData;
         }
-      } catch {
-        // Nếu không parse được JSON thì giữ nguyên status text
+      } else {
         errorMessage = response.statusText || errorMessage;
       }
       throw new Error(errorMessage);
     }
 
-
-    // Thành công → parse JSON bình thường
-    return response.json();
+    return response.data;
   }
 
 
@@ -406,10 +331,7 @@ Report a post
    * Search posts by keyword
    */
   async searchPosts(keyword: string): Promise<Post[]> {
-    const response = await fetch(`${this.baseUrl}/search?q=${encodeURIComponent(keyword)}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'GET', url: `${this.baseUrl}/search?q=${encodeURIComponent(keyword)}` });
     return this.handleResponse<Post[]>(response);
   }
 
@@ -417,10 +339,7 @@ Report a post
    * Get posts by tag
    */
   async getPostsByTag(tag: string): Promise<Post[]> {
-    const response = await fetch(`${this.baseUrl}/tag/${encodeURIComponent(tag)}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'GET', url: `${this.baseUrl}/tag/${encodeURIComponent(tag)}` });
     return this.handleResponse<Post[]>(response);
   }
 
@@ -437,10 +356,7 @@ Report a post
       sortBy: 'likeCount',
       order: 'desc',
     }).toString();
-    const response = await fetch(`${this.baseUrl}/trending?${query}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'GET', url: `${this.baseUrl}/trending?${query}` });
 
     const data = await this.handleResponse<Post[] | PostsEnvelope>(response);
     const normalized = this.extractPostsArray(data);
@@ -483,13 +399,7 @@ Report a post
     const formData = new FormData();
     formData.append('image', file);
 
-    const response = await fetch(`${API_BASE_URL}/upload/image`, {
-      method: 'POST',
-      headers: {
-        ...(typeof window !== 'undefined' && localStorage.getItem('authToken') && { 'token': localStorage.getItem('authToken')! }),
-      },
-      body: formData,
-    });
+    const response = await this.send({ method: 'POST', url: '/upload/image', data: formData });
     return this.handleResponse<{ url: string }>(response);
   }
 
@@ -630,10 +540,7 @@ Report a post
    * Get post detail by ID
    */
   async getPostDetail(postId: string): Promise<Post> {
-    const response = await fetch(`${this.baseUrl}/${postId}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
+    const response = await this.send({ method: 'GET', url: `${this.baseUrl}/${postId}` });
     return this.handleResponse<Post>(response);
   }
 

@@ -1,40 +1,16 @@
-import axios from "axios";
+import { apiClient } from "@/services/apiClient";
 import { parseJwt } from "@/utils/jwt"; // Import parseJwt từ jwt.ts
 import { logAllCookies, logAuthStatus } from "@/utils/cookieHelper"; // Import cookie helpers
 
-// LẤY ĐỘNG TỪ .env.local — KHÔNG FALLBACK
-const API_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/auth`;
-
-// Tạo instance Axios
-const axiosInstance = axios.create({
-  baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Interceptor để thêm token vào header Authorization
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+const API_URL = "/auth";
 
 export const loginUser = async (loginData: {
   username: string;
   password: string;
 }) => {
   try {
-    const response = await axiosInstance.post("/login", loginData);
+    const response = await apiClient.post(`${API_URL}/login`, loginData);
     const { token } = response.data;
-
-    // Kiểm tra dữ liệu từ API
-    console.log("API Response:", response.data); // Debug để kiểm tra dữ liệu
 
     // Lưu token vào localStorage
     if (token) {
@@ -92,7 +68,7 @@ export const createUser = async (userData: {
   };
 }) => {
   try {
-    const response = await axiosInstance.post("/register", userData);
+    const response = await apiClient.post(`${API_URL}/register`, userData);
     return response.data;
   } catch (error) {
     console.error("Lỗi khi tạo người dùng:", error);
@@ -103,7 +79,7 @@ export const createUser = async (userData: {
 // API gửi OTP đến email để reset password
 export const forgotPassword = async (email: string) => {
   try {
-    const response = await axiosInstance.post("/forgot-password", {
+    const response = await apiClient.post(`${API_URL}/forgot-password`, {
       email,
     });
     console.log("OTP đã được gửi đến email:", email);
@@ -121,7 +97,7 @@ export const resetPassword = async (resetData: {
   newPassword: string;
 }) => {
   try {
-    const response = await axiosInstance.post("/reset-password", resetData);
+    const response = await apiClient.post(`${API_URL}/reset-password`, resetData);
     console.log("Mật khẩu đã được reset thành công");
     return response.data;
   } catch (error) {
@@ -142,16 +118,7 @@ export const changePassword = async (changePasswordData: {
       throw new Error('Token not found');
     }
 
-    const response = await axios.post(
-      `${API_URL}/change-password`,
-      changePasswordData,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          token: authToken,
-        },
-      }
-    );
+    const response = await apiClient.post(`${API_URL}/change-password`, changePasswordData);
     
     console.log("Mật khẩu đã được đổi thành công");
     return response.data;
@@ -180,15 +147,6 @@ export const logoutUser = (): void => {
   if (typeof window === 'undefined') {
     console.warn('⚠️  logoutUser chỉ có thể chạy trên client-side');
     return;
-  }
-
-  // ================== 1. XÓA AXIOS HEADERS ==================
-  try {
-    // Xóa Authorization header từ axios default
-    delete axiosInstance.defaults.headers.common['Authorization'];
-    console.log('✓ Đã xóa Authorization header từ axios');
-  } catch (e) {
-    console.warn('⚠️  Lỗi khi xóa axios header:', e);
   }
 
   // ================== 2. XÓA LOCALSTORAGE ==================

@@ -1,23 +1,11 @@
-import axios from "axios";
+import { apiClient, requireAuthToken } from "@/services/apiClient";
 
-// Base URL
-const API_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/customer`;
+const API_URL = "/customer";
 
-// Hàm hỗ trợ lấy token (để không lặp code)
-const getAuthToken = () => {
-  if (typeof window === "undefined") return null;
-  const token = localStorage.getItem("authToken");
-  if (!token) throw new Error("No authentication token found");
-  return token;
+const getAuthHeaders = () => {
+  requireAuthToken();
+  return { headers: { "Content-Type": "application/json" } };
 };
-
-// Hàm tạo headers có token (dùng chung)
-const getAuthHeaders = () => ({
-  headers: {
-    "Content-Type": "application/json",
-    token: getAuthToken(), // giống hệt Service 2
-  },
-});
 
 export async function getCustomerData(
   page: number,
@@ -60,7 +48,7 @@ export async function getCustomerData(
       }
     }
 
-    const response = await axios.get(url, getAuthHeaders());
+    const response = await apiClient.get(url, getAuthHeaders());
     return response.data;
   } catch (error: any) {
     console.error("Lỗi khi lấy danh sách khách hàng:", error.response?.data || error.message);
@@ -70,35 +58,16 @@ export async function getCustomerData(
 
 export async function getCustomerById(id: string | number) {
   try {
-    const response = await axios.get(`${API_URL}/${id}`, getAuthHeaders());
+    const response = await apiClient.get(`${API_URL}/${id}`, getAuthHeaders());
     return response.data;
-  } catch (error: any) {
-    const status = error.response?.status;
-    const respData = error.response?.data;
-    const errorMsg = respData?.message || respData || error.message || 'Unknown error';
-
-    // If the customer is not found, unauthorized, or server error, return null so callers can continue
-    if (status === 404) {
-      return null;
-    }
-
-    if (status === 401 || status === 403) {
-      return null;
-    }
-
-    // For server errors (500, 502, 503, etc.), also return null instead of throwing
-    if (status >= 500) {
-      return null;
-    }
-
-    // For other errors, return null to prevent breaking the UI
+  } catch {
     return null;
   }
 }
 
 export async function getCustomerTotalDetail() {
   try {
-    const response = await axios.get(`${API_URL}/total/detail`, getAuthHeaders());
+    const response = await apiClient.get(`${API_URL}/total/detail`, getAuthHeaders());
     return response.data;
   } catch (error: any) {
     console.error("Lỗi khi lấy tổng chi tiết khách hàng:", error.response?.data || error.message);
@@ -108,11 +77,7 @@ export async function getCustomerTotalDetail() {
 
 export async function updateCustomerStatus(id: string | number, status: 'active' | 'deactive') {
   try {
-    const response = await axios.patch(
-      `${API_URL}/${id}/status`,
-      { status },
-      getAuthHeaders()
-    );
+    const response = await apiClient.patch(`${API_URL}/${id}/status`, { status }, getAuthHeaders());
     return response.data;
   } catch (error: any) {
     console.error("Lỗi khi cập nhật trạng thái khách hàng:", error.response?.data || error.message);
@@ -122,11 +87,7 @@ export async function updateCustomerStatus(id: string | number, status: 'active'
 
 export async function addCustomerRole(id: string | number, role: string) {
   try {
-    const response = await axios.patch(
-      `${API_URL}/${id}/add-role`,
-      { role },
-      getAuthHeaders()
-    );
+    const response = await apiClient.patch(`${API_URL}/${id}/add-role`, { role }, getAuthHeaders());
     return response.data;
   } catch (error: any) {
     console.error("Lỗi khi thêm role cho khách hàng:", error.response?.data || error.message);

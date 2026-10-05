@@ -1,4 +1,6 @@
-const API_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/payments`;
+import { apiClient } from '@/services/apiClient';
+
+const API_URL = '/payments';
 
 interface PaymentRequest {
   amount: number;
@@ -42,20 +44,15 @@ export const PaymentService = {
       throw new Error('Token not found');
     }
 
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        token: `${authToken}`,
-      },
-      body: JSON.stringify(payload),
+    const response = await apiClient.post<PaymentResponse>(API_URL, payload, {
+      validateStatus: () => true,
     });
 
-    if (!response.ok) {
+    if (response.status < 200 || response.status >= 300) {
       throw new Error(`Payment API error: ${response.statusText}`);
     }
 
-    const data: PaymentResponse = await response.json();
+    const data: PaymentResponse = response.data;
 
     if (data.code !== '00') {
       throw new Error(data.desc || 'Payment creation failed');
@@ -67,35 +64,23 @@ export const PaymentService = {
   async getPaymentStatus(orderCode: string): Promise<PaymentStatusResponse> {
     const authToken = localStorage.getItem('authToken');
 
-    console.log('getPaymentStatus - orderCode:', orderCode);
-    console.log('getPaymentStatus - authToken exists:', !!authToken);
-
     if (!authToken) {
       throw new Error('Token not found');
     }
 
     const statusUrl = `${API_URL}/payments/${orderCode}/status`;
-    console.log('Fetching from:', statusUrl);
 
     try {
-      const response = await fetch(statusUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          token: `${authToken}`,
-        },
+      const response = await apiClient.get<PaymentStatusResponse>(statusUrl, {
+        validateStatus: () => true,
       });
 
-      console.log('Payment status API response status:', response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Payment status API error:', response.statusText, errorText);
+      if (response.status < 200 || response.status >= 300) {
+        console.error('Payment status API error:', response.statusText, response.data);
         throw new Error(`Payment status API error: ${response.statusText}`);
       }
 
-      const data: PaymentStatusResponse = await response.json();
-      console.log('Payment status API response data:', data);
+      const data: PaymentStatusResponse = response.data;
 
       // Check if the response is successful based on 'success' field
       if (!data.success) {

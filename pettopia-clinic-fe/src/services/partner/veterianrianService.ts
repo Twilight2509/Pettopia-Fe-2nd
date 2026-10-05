@@ -1,9 +1,9 @@
-import axios from 'axios';
+import { apiClient, requireAuthToken } from '@/services/apiClient';
 
-// Lấy base URL từ .env
-const API_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/partner/vet`;
-const PARTNER_API_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/partner`;
-const HEALTHCARE_API_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare`;
+const API_URL = '/partner/vet';
+const PARTNER_API_URL = '/partner';
+const HEALTHCARE_API_URL = '/healthcare';
+const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 export interface VeterinarianForm {
   _id: string;
@@ -51,18 +51,10 @@ export async function submitVeterinarianData(data: {
   license_number: string;
   license_image_url: string;
 }) {
-  const token = localStorage.getItem('authToken');
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
+  requireAuthToken();
 
   try {
-    const response = await axios.post(`${API_URL}/register`, data, {
-      headers: {
-        'Content-Type': 'application/json',
-        'token': token,
-      },
-    });
+    const response = await apiClient.post(`${API_URL}/register`, data, { headers: JSON_HEADERS });
     return response.data;
   } catch (error) {
     throw new Error('Failed to submit veterinarian data');
@@ -70,18 +62,12 @@ export async function submitVeterinarianData(data: {
 }
 
 export async function getVeterinarianForms(page: number = 1, limit: number = 10): Promise<VeterinarianFormResponse> {
-  const token = localStorage.getItem('authToken');
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
+  requireAuthToken();
 
   try {
-    const response = await axios.get<VeterinarianFormResponse>(`${API_URL}/form`, {
+    const response = await apiClient.get<VeterinarianFormResponse>(`${API_URL}/form`, {
       params: { page, limit },
-      headers: {
-        'Content-Type': 'application/json',
-        'token': token,
-      },
+      headers: JSON_HEADERS,
     });
     return response.data;
   } catch (error: any) {
@@ -97,19 +83,13 @@ export async function updateVeterinarianFormStatus(
   status: 'approved' | 'rejected' | 'pending',
   note?: string
 ) {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.patch(
+    const response = await apiClient.patch(
       `${API_URL}/status/form/${formId}`,
       { status, note },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          token,
-        },
-      }
+      { headers: JSON_HEADERS }
     );
     return response.data;
   } catch (error: any) {
@@ -148,13 +128,10 @@ export interface ClinicMembersResponse {
  * GET `${PARTNER_API_URL}/clinic/members/vets`
  */
 export const getClinicVets = async () => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.get(`${PARTNER_API_URL}/clinic/members/vets`, {
-      headers: { token },
-    });
+    const response = await apiClient.get(`${PARTNER_API_URL}/clinic/members/vets`);
     return response.data as ClinicMembersResponse;
   } catch (error: any) {
     console.error('Lỗi khi lấy danh sách thành viên phòng khám (vets):', error?.response?.data || error?.message || error);
@@ -167,13 +144,10 @@ export const getClinicVets = async () => {
  * DELETE `${PARTNER_API_URL}/clinic/members/:memberId`
  */
 export const deleteClinicVet = async (memberId: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.delete(`${PARTNER_API_URL}/clinic/members/${memberId}`, {
-      headers: { token },
-    });
+    const response = await apiClient.delete(`${PARTNER_API_URL}/clinic/members/${memberId}`);
     return response.data;
   } catch (error: any) {
     console.error(`Lỗi khi xóa thành viên phòng khám (vet ${memberId}):`, error?.response?.data || error?.message || error);
@@ -220,13 +194,10 @@ export interface VetDetailResponse {
  * GET `${API_URL}/{vetId}`
  */
 export const getVetDetail = async (vetId: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.get(`${API_URL}/${vetId}`, {
-      headers: { token },
-    });
+    const response = await apiClient.get(`${API_URL}/${vetId}`);
     return response.data as VetDetailResponse;
   } catch (error: any) {
     console.error(`Lỗi khi lấy chi tiết bác sĩ (vet ${vetId}):`, error?.response?.data || error?.message || error);
@@ -263,17 +234,14 @@ export interface VetAppointmentsResponse {
  * GET `${HEALTHCARE_API_URL}/appointments/vet/me?status={status}`
  */
 export const getVetAppointments = async (status?: string): Promise<VetAppointmentsResponse> => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
     const url = status 
       ? `${HEALTHCARE_API_URL}/appointments/vet/me?status=${status}`
       : `${HEALTHCARE_API_URL}/appointments/vet/me`;
     
-    const response = await axios.get<VetAppointmentsResponse>(url, {
-      headers: { token },
-    });
+    const response = await apiClient.get<VetAppointmentsResponse>(url);
     return response.data;
   } catch (error: any) {
     console.error('Lỗi khi lấy danh sách lịch hẹn được phân công:', error?.response?.data || error?.message || error);
@@ -290,8 +258,7 @@ export const getVetAppointmentsWithPagination = async (
   page: number = 1,
   limit: number = 10
 ): Promise<VetAppointmentsResponse> => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
     const params = new URLSearchParams();
@@ -299,11 +266,8 @@ export const getVetAppointmentsWithPagination = async (
     params.append('page', page.toString());
     params.append('limit', limit.toString());
 
-    const response = await axios.get<VetAppointmentsResponse>(
-      `${HEALTHCARE_API_URL}/appointments/vet/me?${params.toString()}`,
-      {
-        headers: { token },
-      }
+    const response = await apiClient.get<VetAppointmentsResponse>(
+      `${HEALTHCARE_API_URL}/appointments/vet/me?${params.toString()}`
     );
     return response.data;
   } catch (error: any) {
@@ -348,19 +312,13 @@ export const createMedicalRecord = async (
   appointmentId: string,
   payload: MedicalRecordPayload
 ): Promise<MedicalRecordResponse> => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.post(
+    const response = await apiClient.post(
       `${HEALTHCARE_API_URL}/appointments/${appointmentId}/medical-records`,
       payload,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          token,
-        },
-      }
+      { headers: JSON_HEADERS }
     );
     return response.data as MedicalRecordResponse;
   } catch (error: any) {
@@ -380,19 +338,13 @@ export const updateMedicalRecord = async (
   appointmentId: string,
   payload: UpdateMedicalRecordPayload
 ): Promise<MedicalRecordResponse> => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.patch(
+    const response = await apiClient.patch(
       `${HEALTHCARE_API_URL}/appointments/${appointmentId}/medical-record`,
       payload,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          token,
-        },
-      }
+      { headers: JSON_HEADERS }
     );
     return response.data as MedicalRecordResponse;
   } catch (error: any) {
@@ -406,7 +358,7 @@ export const updateMedicalRecord = async (
 
 // --- Pet detail for vets (includes medical records) ---
 
-const PET_API_V1_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/pet`;
+const PET_API_V1_URL = '/pet';
 
 export interface PetOwnerAddress {
   city?: string;
@@ -471,14 +423,11 @@ export interface VetPetDetail {
  * GET `${PET_API_V1_URL}/{petId}`
  */
 export const getVetPetDetail = async (petId: string): Promise<VetPetDetail> => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
     const url = `${PET_API_V1_URL}/${encodeURIComponent(petId)}`;
-    const response = await axios.get(url, {
-      headers: { token },
-    });
+    const response = await apiClient.get(url);
 
     // API có thể trả về { data: {...} } hoặc trực tiếp object
     return (response.data?.data || response.data) as VetPetDetail;
@@ -508,13 +457,10 @@ export interface PetMedicalRecordsResponse {
  * GET `${HEALTHCARE_API_URL}/pets/{petId}/medical-records`
  */
 export const getPetMedicalRecords = async (petId: string): Promise<PetMedicalRecordsResponse> => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.get(`${HEALTHCARE_API_URL}/pets/${petId}/medical-records`, {
-      headers: { token },
-    });
+    const response = await apiClient.get(`${HEALTHCARE_API_URL}/pets/${petId}/medical-records`);
     return response.data as PetMedicalRecordsResponse;
   } catch (error: any) {
     console.error(`Lỗi khi lấy hồ sơ bệnh án của thú cưng (${petId}):`, error?.response?.data || error?.message || error);
@@ -627,14 +573,11 @@ export interface VetAppointmentDetailResponse {
 export const getVetAppointmentDetail = async (
   appointmentId: string
 ): Promise<VetAppointmentDetailResponse> => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const url = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/healthcare/appointments/${encodeURIComponent(appointmentId)}`;
-    const response = await axios.get<VetAppointmentDetailResponse>(url, {
-      headers: { token },
-    });
+    const url = `${HEALTHCARE_API_URL}/appointments/${encodeURIComponent(appointmentId)}`;
+    const response = await apiClient.get<VetAppointmentDetailResponse>(url);
     return response.data;
   } catch (error: any) {
     console.error(
@@ -650,16 +593,12 @@ export const getVetAppointmentDetail = async (
  * POST `${HEALTHCARE_API_URL}/appointments/{appointmentId}/complete`
  */
 export const completeAppointment = async (appointmentId: string) => {
-  const token = localStorage.getItem('authToken');
-  if (!token) throw new Error('No authentication token found');
+  requireAuthToken();
 
   try {
-    const response = await axios.post(
+    const response = await apiClient.post(
       `${HEALTHCARE_API_URL}/appointments/${appointmentId}/complete`,
-      {},
-      {
-        headers: { token },
-      }
+      {}
     );
     return response.data;
   } catch (error: any) {

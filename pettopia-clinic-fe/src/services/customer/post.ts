@@ -1,29 +1,22 @@
-// API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_PETTOPIA_API_URL || 'http://localhost:3000/api/v1';
-const getToken = () => localStorage.getItem('authToken') || '';
+import { apiClient } from "@/services/apiClient";
+
+const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 // API Services
 export const getReportedPosts = async () => {
-    const response = await fetch(`${API_BASE_URL}/communication/staff/reported`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'token': getToken()
-        }
-    });
-    if (!response.ok) throw new Error('Không thể tải danh sách bài viết bị báo cáo');
-    return response.json();
+    try {
+        const response = await apiClient.get('/communication/staff/reported', { headers: JSON_HEADERS });
+        return response.data;
+    } catch {
+        throw new Error('Không thể tải danh sách bài viết bị báo cáo');
+    }
 };
 
 export const toggleHidePost = async (postId: string, isHidden: boolean) => {
-    const response = await fetch(`${API_BASE_URL}/communication/${postId}/hide`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'token': getToken()
-        },
-        body: JSON.stringify({ isHidden })
-    });
-    if (!response.ok) throw new Error(isHidden ? 'Không thể ẩn bài viết' : 'Không thể bỏ ẩn bài viết');
-    return response.json();
+    try {
+        const response = await apiClient.patch(`/communication/${postId}/hide`, { isHidden }, { headers: JSON_HEADERS });
+        return response.data;
+    } catch {
+        throw new Error(isHidden ? 'Không thể ẩn bài viết' : 'Không thể bỏ ẩn bài viết');
+    }
 };

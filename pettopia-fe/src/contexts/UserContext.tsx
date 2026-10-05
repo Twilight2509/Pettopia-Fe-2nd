@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { getCustomerRawById } from '@/services/user/userService';
 
 interface UserData {
   fullname: string;
@@ -43,16 +44,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       
       const userId = '2f94020b-d56e-4c40-98a9-7ecb99a8184a';
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/customer/${userId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      
-      const data = await response.json();
+      const data = await getCustomerRawById(userId);
       setUserData(data);
       setIsLoading(false);
     } catch (error) {

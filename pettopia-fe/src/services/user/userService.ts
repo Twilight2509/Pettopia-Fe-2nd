@@ -1,42 +1,12 @@
-import axios from "axios";
+import { apiClient } from "@/services/apiClient";
 
-// Base URL
-const API_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/customer`;
-
-/**
- * Lấy token từ localStorage.
- * Hỗ trợ cả key 'authToken' và 'token'.
- * Trả về null nếu không tìm thấy (caller sẽ xử lý).
- */
-const getAuthToken = (): string | null => {
-  if (typeof window === "undefined") return null;
-  // ưu tiên 'authToken', fallback 'token'
-  const token = localStorage.getItem("authToken") ?? null;
-  return token;
-};
-
-const getAuthHeaders = () => {
-  const token = getAuthToken();
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-  if (token) {
-    headers["token"] = token; // server expects header key 'token' như Postman
-  } else {
-    // optional: console.warn để dễ debug khi token không có
-    console.warn("No auth token found in localStorage (checked 'authToken' and 'token')");
-  }
-  return { headers };
-};
+const API_URL = "/customer";
 
 export async function getCustomerById(id?: string | number | null) {
   try {
     const url = !id || id === "profile" ? `${API_URL}/profile` : `${API_URL}/${id}`;
 
-    // Nếu muốn fail fast khi không có token, bật check này:
-    // if (!getAuthToken()) throw new Error('No authentication token found');
-
-    const response = await axios.get(url, getAuthHeaders());
+    const response = await apiClient.get(url);
 
     const respBody = response.data;
     return respBody?.data ?? respBody;
@@ -61,6 +31,11 @@ export async function getCustomerById(id?: string | number | null) {
   }
 }
 
+export async function getCustomerRawById(userId: string) {
+  const response = await apiClient.get(`${API_URL}/${userId}`);
+  return response.data;
+}
+
 /**
  * Lấy thông tin profile customer hiện tại (dùng token, không cần truyền id).
  * FE nên ưu tiên dùng hàm này cho trang hồ sơ cá nhân.
@@ -78,7 +53,7 @@ export async function updateCustomerProfile(data: Record<string, any>) {
   try {
     const url = `${API_URL}/profile`;
 
-    const response = await axios.patch(url, data, getAuthHeaders());
+    const response = await apiClient.patch(url, data);
 
     const respBody = response.data;
     return respBody?.data ?? respBody;
@@ -106,7 +81,7 @@ export async function getVipStatus() {
   try {
     const url = `${API_URL}/profile/vip-remaining-days`;
 
-    const response = await axios.get(url, getAuthHeaders());
+    const response = await apiClient.get(url);
 
     const respBody = response.data;
     return respBody?.data ?? respBody;

@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import jsQR from 'jsqr';
-import axios from 'axios';
+import { getPetPublicInfo } from '@/services/petcare/petService';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
@@ -79,12 +79,8 @@ export default function QRScanPage() {
     try {
       setLoading(true);
       setError('');
-      const apiUrl = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/pet/${petId}/info`;
-      const response = await axios.get(apiUrl);
-      const data = response.data;
-      
-      console.log('API Response:', data); // Thêm log để kiểm tra dữ liệu trả về
-      
+      const data = await getPetPublicInfo(petId);
+
       setPetInfo({
         id: data.id || petId,
         name: data.name || '',

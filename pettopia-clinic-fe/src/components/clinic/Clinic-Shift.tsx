@@ -1,64 +1,12 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react';
 import { Sun, Sunset, Moon, Clock, Edit, Trash2, Loader2 } from 'lucide-react';
-
-// API Configuration
-const API_BASE_URL = `${process.env.NEXT_PUBLIC_PETTOPIA_API_URL}/partner/clinic/shift`;
-const getToken = () => localStorage.getItem('authToken') || '';
-
-// API Services
-const getClinicShifts = async (page: number, limit: number) => {
-  const response = await fetch(`${API_BASE_URL}?page=${page}&limit=${limit}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'token': getToken()
-    }
-  });
-  if (!response.ok) throw new Error('Không thể tải danh sách ca làm việc');
-  return response.json();
-};
-
-const createClinicShift = async (shift: Omit<ClinicShift, 'id' | 'is_active'>) => {
-  const response = await fetch(API_BASE_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'token': getToken()
-    },
-    body: JSON.stringify(shift)
-  });
-  if (!response.ok) throw new Error('Không thể tạo ca làm việc');
-  return response.json();
-};
-
-const updateClinicShift = async (id: string, shift: Omit<ClinicShift, 'id' | 'is_active'>) => {
-  const response = await fetch(`${API_BASE_URL}/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'token': getToken()
-    },
-    body: JSON.stringify(shift)
-  });
-  if (!response.ok) throw new Error('Không thể cập nhật ca làm việc');
-  return response.json();
-};
-
-const deleteClinicShift = async (id: string) => {
-  const response = await fetch(`${API_BASE_URL}/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      'token': getToken()
-    }
-  });
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err.message || 'Không thể xóa ca làm việc');
-  }
-  return response.json();
-};
+import {
+  fetchClinicShiftPage as getClinicShifts,
+  createClinicShift,
+  updateClinicShift,
+  deleteClinicShift,
+} from '@/services/partner/shiftService';
 
 interface ClinicShift {
   id?: string;
